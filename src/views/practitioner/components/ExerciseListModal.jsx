@@ -46,6 +46,13 @@ const ExerciseListModal = ({ onAddExercises, takenExercises }) => {
   };
 
   const handleSubmit = () => {
+    if (
+      formState.title === defaultForm.title ||
+      isNaN(parseInt(formState.sets, 10)) ||
+      isNaN(parseInt(formState.reps, 10))
+    )
+      return;
+
     const exercise = exercises.find((e) => e.title === formState.title);
     onAddExercises({ ...formState, id: exercise.id, image: exercise.image });
     handleClose();
@@ -86,7 +93,8 @@ const ExerciseListModal = ({ onAddExercises, takenExercises }) => {
           <div className="font-bold">Sets</div>
           <input
             name="sets"
-            type={"number"}
+            type="number"
+            min="1"
             className="w-full px-3 py-2 border rounded-md"
             onChange={onFormChange}
             value={formState.sets}
@@ -94,7 +102,8 @@ const ExerciseListModal = ({ onAddExercises, takenExercises }) => {
           <div className="font-bold">Reps</div>
           <input
             name="reps"
-            type={"number"}
+            type="number"
+            min="1"
             className="w-full px-3 py-2 border rounded-md"
             onChange={onFormChange}
             value={formState.reps}
