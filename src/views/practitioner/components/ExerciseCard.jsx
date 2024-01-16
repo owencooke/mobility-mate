@@ -1,9 +1,20 @@
-const ExerciseCard = ({ exercise }) => {
+import { X } from "lucide-react";
+
+const ExerciseCard = ({ exercise, editing, onClose }) => {
   return (
     <div
       key={exercise.id}
-      className="bg-white rounded-lg shadow-md p-4 flex flex-col"
+      className="relative bg-white rounded-lg shadow-md p-4 flex flex-col"
     >
+      {editing && (
+        <button
+          className="absolute top-2 right-2 text-gray-800  hover:text-gray-500"
+          onClick={onClose}
+        >
+          <X />
+        </button>
+      )}
+
       <img
         src={exercise.image}
         alt={exercise.title}

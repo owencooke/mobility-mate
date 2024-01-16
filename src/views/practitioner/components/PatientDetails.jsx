@@ -50,10 +50,6 @@ const PatientDetails = ({ patientID }) => {
     fetchPatientDetails();
   }, [patientID]);
 
-  const handleAddExercise = (newExercise) => {
-    setPatientExercises((prev) => [...prev, newExercise]);
-  };
-
   const formatDate = (date) => {
     if (!date) return "";
     const day = date.getDate();
@@ -64,6 +60,16 @@ const PatientDetails = ({ patientID }) => {
     return `${day}/${month}/${year} ${hours}:${
       minutes < 10 ? "0" : ""
     }${minutes}`;
+  };
+
+  const handleAddExercise = (newExercise) => {
+    setPatientExercises((prev) => [...prev, newExercise]);
+  };
+
+  const handleRemoveExercise = (indexToRemove) => {
+    setPatientExercises((prevList) =>
+      prevList.filter((_, index) => index !== indexToRemove)
+    );
   };
 
   const handleEditRoutine = () => {
@@ -130,8 +136,13 @@ const PatientDetails = ({ patientID }) => {
                 <p className="text-gray-600">No exercises assigned 🥱</p>
               ) : (
                 <>
-                  {patientExercises.map((exercise) => (
-                    <ExerciseCard key={exercise.id} exercise={exercise} />
+                  {patientExercises.map((exercise, idx) => (
+                    <ExerciseCard
+                      key={idx}
+                      exercise={exercise}
+                      editing={editing}
+                      onClose={() => handleRemoveExercise(idx)}
+                    />
                   ))}
                   {editing && (
                     <button
