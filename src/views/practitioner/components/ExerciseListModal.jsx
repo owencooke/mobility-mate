@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { db, getCurrentUser } from "../../../../firebaseConfig";
 
 const id = "exercise_list_modal";
 const defaultForm = {
@@ -8,8 +9,36 @@ const defaultForm = {
   notes: "",
 };
 
-const ExerciseListModal = ({ exercises, onAddExercises }) => {
+const ExerciseListModal = ({ onAddExercises, takenExercises }) => {
   const [formState, setFormState] = useState(defaultForm);
+  const [exercises, setExercises] = useState([]);
+
+  useEffect(() => {
+    const fetchPatientDetails = async () => {
+      const currentUser = await getCurrentUser();
+
+      // Fetch exercises
+      const exercisesRef = db
+        .collection("practitioners")
+        .doc(currentUser.uid)
+        .collection("exercises");
+
+      const unsubscribeExercises = exercisesRef.onSnapshot((snapshot) => {
+        setExercises(
+          snapshot.docs
+            .map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }))
+            .filter((e) => !takenExercises.includes(e.id))
+        );
+      });
+
+      return () => unsubscribeExercises();
+    };
+
+    fetchPatientDetails();
+  }, [takenExercises]);
 
   const handleClose = () => {
     document.getElementById(id).close();
@@ -17,7 +46,8 @@ const ExerciseListModal = ({ exercises, onAddExercises }) => {
   };
 
   const handleSubmit = () => {
-    onAddExercises(formState);
+    const exercise = exercises.find((e) => e.title === formState.title);
+    onAddExercises({ ...formState, id: exercise.id, image: exercise.image });
     handleClose();
   };
 

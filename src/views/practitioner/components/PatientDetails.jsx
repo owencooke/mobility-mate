@@ -6,7 +6,6 @@ import ExerciseCard from "./ExerciseCard";
 
 const PatientDetails = ({ patientID }) => {
   const [patient, setPatient] = useState(null);
-  const [exercises, setExercises] = useState([]);
   const [patientExercises, setPatientExercises] = useState([]);
   const [convos, setConvos] = useState([]);
   const [editing, setEditing] = useState(false);
@@ -44,50 +43,14 @@ const PatientDetails = ({ patientID }) => {
         }
       });
 
-      // Fetch exercises
-      const exercisesRef = db
-        .collection("practitioners")
-        .doc(currentUser.uid)
-        .collection("exercises");
-
-      const unsubscribeExercises = exercisesRef.onSnapshot((snapshot) => {
-        setExercises(
-          snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }))
-        );
-      });
-
-      return () => {
-        unsubscribePatient();
-        unsubscribeExercises();
-      };
+      return () => unsubscribePatient();
     };
 
     fetchPatientDetails();
   }, [patientID]);
 
-  // const handleAddExercises = async (selectedExercises) => {
-  //   const currentUser = await getCurrentUser();
-  //   const patientRef = db
-  //     .collection("practitioners")
-  //     .doc(currentUser.uid)
-  //     .collection("patients")
-  //     .doc(patientID);
-  //   await patientRef.update({
-  //     exerciseRoutine: selectedExercises,
-  //   });
-
-  //   setPatientExercises(selectedExercises);
-  // };
-
   const handleAddExercise = (newExercise) => {
-    const exercise = exercises.find((e) => e.title === newExercise.title);
-    setPatientExercises((prev) => [
-      ...prev,
-      { ...newExercise, id: exercise.id, image: exercise.image },
-    ]);
+    setPatientExercises((prev) => [...prev, newExercise]);
   };
 
   const formatDate = (date) => {
@@ -102,8 +65,26 @@ const PatientDetails = ({ patientID }) => {
     }${minutes}`;
   };
 
-  const handleEditing = () => {
-    setEditing((prev) => !prev);
+  const handleEditRoutine = () => {
+    setEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setPatientExercises(patient.exerciseRoutine);
+    setEditing(false);
+  };
+
+  const handleSaveRoutine = async () => {
+    const currentUser = await getCurrentUser();
+    const patientRef = db
+      .collection("practitioners")
+      .doc(currentUser.uid)
+      .collection("patients")
+      .doc(patientID);
+    await patientRef.update({
+      exerciseRoutine: patientExercises,
+    });
+    setEditing(false);
   };
 
   return (
@@ -123,18 +104,18 @@ const PatientDetails = ({ patientID }) => {
               <div>
                 <button
                   className="btn bg-dark-teal text-white"
-                  onClick={() => handleEditing()}
+                  onClick={() => handleSaveRoutine()}
                 >
                   <Save />
                 </button>
-                <button className="btn" onClick={() => handleEditing()}>
+                <button className="btn" onClick={() => handleCancelEdit()}>
                   <X />
                 </button>
               </div>
             ) : (
               <button
                 className={"btn bg-dark-teal text-white"}
-                onClick={() => handleEditing()}
+                onClick={() => handleEditRoutine()}
               >
                 <Edit />
               </button>
@@ -194,9 +175,8 @@ const PatientDetails = ({ patientID }) => {
       ) : (
         <p>Loading patient details...</p>
       )}
-
       <ExerciseListModal
-        exercises={exercises}
+        takenExercises={patientExercises.map((e) => e.id)}
         onAddExercises={handleAddExercise}
       />
     </div>
