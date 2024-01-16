@@ -1,17 +1,19 @@
 import { useState } from "react";
 
 const id = "exercise_list_modal";
+const defaultForm = {
+  title: "Select Exercise",
+  sets: "",
+  reps: "",
+  notes: "",
+};
 
 const ExerciseListModal = ({ exercises, onAddExercises }) => {
-  const [formState, setFormState] = useState({
-    title: "",
-    sets: "",
-    reps: "",
-    additionalNotes: "",
-  });
+  const [formState, setFormState] = useState(defaultForm);
 
   const handleClose = () => {
     document.getElementById(id).close();
+    setFormState(defaultForm);
   };
 
   const handleSubmit = () => {
@@ -39,16 +41,14 @@ const ExerciseListModal = ({ exercises, onAddExercises }) => {
         </button>
         <h3 className="font-bold text-lg">Add Exercise</h3>
         <div className="grid grid-cols-2 gap-4 p-4 items-center">
-          <div className="font-bold">Name</div>
+          <div className="font-bold">Title</div>
           <select
             name="title"
             className="select select-bordered w-full max-w-xs"
             onChange={onFormChange}
             value={formState.title}
           >
-            <option disabled selected>
-              Select Exercise
-            </option>
+            <option disabled>Select Exercise</option>
             {exercises.map((exercise) => (
               <option key={exercise.id}>{exercise.title}</option>
             ))}
@@ -72,10 +72,10 @@ const ExerciseListModal = ({ exercises, onAddExercises }) => {
           <div className="col-span-2">
             <div className="font-bold">Additional Notes</div>
             <textarea
-              name="additionalNotes"
+              name="notes"
               className="w-full px-3 py-2 border rounded-md"
               onChange={onFormChange}
-              value={formState.additionalNotes}
+              value={formState.notes}
             ></textarea>
           </div>
         </div>

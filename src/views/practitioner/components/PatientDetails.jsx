@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { db, getCurrentUser } from "../../../../firebaseConfig";
 import { Edit, Save, X, Plus } from "lucide-react";
 import ExerciseListModal from "./ExerciseListModal";
+import ExerciseCard from "./ExerciseCard";
 
 const PatientDetails = ({ patientID }) => {
   const [patient, setPatient] = useState(null);
@@ -83,7 +84,10 @@ const PatientDetails = ({ patientID }) => {
 
   const handleAddExercise = (newExercise) => {
     const exercise = exercises.find((e) => e.title === newExercise.title);
-    setPatientExercises((prev) => [...prev, exercise.id]);
+    setPatientExercises((prev) => [
+      ...prev,
+      { ...newExercise, id: exercise.id, image: exercise.image },
+    ]);
   };
 
   const formatDate = (date) => {
@@ -143,35 +147,9 @@ const PatientDetails = ({ patientID }) => {
                 <p className="text-gray-600">No exercises assigned 🥱</p>
               ) : (
                 <>
-                  {" "}
-                  {patientExercises.map((exerciseId) => {
-                    const exercise = exercises.find((e) => e.id === exerciseId);
-                    return (
-                      exercise && (
-                        <div
-                          key={exercise.id}
-                          className="bg-white rounded-lg shadow-md p-4 flex flex-col"
-                        >
-                          <img
-                            src={exercise.image}
-                            alt={exercise.title}
-                            className="w-80 h-32 sm:h-48 object-fit rounded-t-lg"
-                          />
-                          <h3 className="mt-2 font-bold text-lg">
-                            {exercise.title}
-                          </h3>
-                          <div className="grid grid-cols-2 gap-4 p-2">
-                            <div className="font-bold">Sets</div>
-                            <div>{exercise.sets}</div>
-                            <div className="font-bold">Reps</div>
-                            <div>{exercise.reps}</div>
-                            <div className="font-bold">Notes</div>
-                            <div>{exercise.notes}</div>
-                          </div>
-                        </div>
-                      )
-                    );
-                  })}
+                  {patientExercises.map((exercise) => (
+                    <ExerciseCard key={exercise.id} exercise={exercise} />
+                  ))}
                   {editing && (
                     <button
                       className="btn bg-dark-teal text-white h-full"
