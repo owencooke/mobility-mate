@@ -1,44 +1,15 @@
-import { useState, useEffect } from "react";
-import { db, getCurrentUser } from "../../../../firebaseConfig";
+import { useState } from "react";
 
 const id = "exercise_list_modal";
 const defaultForm = {
-  title: "Select Exercise",
+  id: "",
   sets: "",
   reps: "",
   notes: "",
 };
 
-const ExerciseListModal = ({ onAddExercises, takenExercises }) => {
+const ExerciseListModal = ({ availableExercises, onAddExercises }) => {
   const [formState, setFormState] = useState(defaultForm);
-  const [exercises, setExercises] = useState([]);
-
-  useEffect(() => {
-    const fetchPatientDetails = async () => {
-      const currentUser = await getCurrentUser();
-
-      // Fetch exercises
-      const exercisesRef = db
-        .collection("practitioners")
-        .doc(currentUser.uid)
-        .collection("exercises");
-
-      const unsubscribeExercises = exercisesRef.onSnapshot((snapshot) => {
-        setExercises(
-          snapshot.docs
-            .map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            }))
-            .filter((e) => !takenExercises.includes(e.id))
-        );
-      });
-
-      return () => unsubscribeExercises();
-    };
-
-    fetchPatientDetails();
-  }, [takenExercises]);
 
   const handleClose = () => {
     document.getElementById(id).close();
@@ -47,14 +18,12 @@ const ExerciseListModal = ({ onAddExercises, takenExercises }) => {
 
   const handleSubmit = () => {
     if (
-      formState.title === defaultForm.title ||
+      !formState.id ||
       isNaN(parseInt(formState.sets, 10)) ||
       isNaN(parseInt(formState.reps, 10))
     )
       return;
-
-    const exercise = exercises.find((e) => e.title === formState.title);
-    onAddExercises({ ...formState, id: exercise.id, image: exercise.image });
+    onAddExercises(formState);
     handleClose();
   };
 
@@ -80,14 +49,18 @@ const ExerciseListModal = ({ onAddExercises, takenExercises }) => {
         <div className="grid grid-cols-2 gap-4 p-4 items-center">
           <div className="font-bold">Title</div>
           <select
-            name="title"
+            name="id"
             className="select select-bordered w-full max-w-xs"
             onChange={onFormChange}
-            value={formState.title}
+            value={formState.id}
           >
-            <option disabled>Select Exercise</option>
-            {exercises.map((exercise) => (
-              <option key={exercise.id}>{exercise.title}</option>
+            <option disabled value="">
+              Select Exercise
+            </option>
+            {availableExercises.map((exercise) => (
+              <option key={exercise.id} value={exercise.id}>
+                {exercise.title}
+              </option>
             ))}
           </select>
           <div className="font-bold">Sets</div>

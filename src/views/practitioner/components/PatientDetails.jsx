@@ -6,6 +6,7 @@ import ExerciseCard from "./ExerciseCard";
 
 const PatientDetails = ({ patientID }) => {
   const [patient, setPatient] = useState(null);
+  const [allExercises, setAllExercises] = useState([]);
   const [patientExercises, setPatientExercises] = useState([]);
   const [convos, setConvos] = useState([]);
   const [editing, setEditing] = useState(false);
@@ -44,7 +45,25 @@ const PatientDetails = ({ patientID }) => {
         }
       });
 
-      return () => unsubscribePatient();
+      // Fetch exercises
+      const exercisesRef = db
+        .collection("practitioners")
+        .doc(currentUser.uid)
+        .collection("exercises");
+
+      const unsubscribeExercises = exercisesRef.onSnapshot((snapshot) => {
+        setAllExercises(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+        );
+      });
+
+      return () => {
+        unsubscribePatient();
+        unsubscribeExercises();
+      };
     };
 
     fetchPatientDetails();
@@ -136,14 +155,19 @@ const PatientDetails = ({ patientID }) => {
                 <p className="text-gray-600">No exercises assigned 🥱</p>
               ) : (
                 <>
-                  {patientExercises.map((exercise, idx) => (
-                    <ExerciseCard
-                      key={idx}
-                      exercise={exercise}
-                      editing={editing}
-                      onClose={() => handleRemoveExercise(idx)}
-                    />
-                  ))}
+                  {patientExercises.map((exercise, idx) => {
+                    const fullExercise = allExercises.find(
+                      (e) => e.id === exercise.id
+                    );
+                    return (
+                      <ExerciseCard
+                        key={idx}
+                        exercise={{ ...exercise, ...fullExercise }}
+                        editing={editing}
+                        onClose={() => handleRemoveExercise(idx)}
+                      />
+                    );
+                  })}
                   {editing && (
                     <button
                       className="btn bg-dark-teal text-white h-full"
@@ -189,7 +213,9 @@ const PatientDetails = ({ patientID }) => {
         <p>Loading patient details...</p>
       )}
       <ExerciseListModal
-        takenExercises={patientExercises.map((e) => e.id)}
+        availableExercises={allExercises.filter(
+          (exercise) => !patientExercises.some((e) => e.id === exercise.id)
+        )}
         onAddExercises={handleAddExercise}
       />
       {showAlert && (
