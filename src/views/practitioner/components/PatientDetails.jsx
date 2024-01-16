@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { db, getCurrentUser } from "../../../../firebaseConfig";
-import { Edit, Save, X, Plus } from "lucide-react";
+import { Edit, Save, X, Plus, CheckCircle2 } from "lucide-react";
 import ExerciseListModal from "./ExerciseListModal";
 import ExerciseCard from "./ExerciseCard";
 
@@ -9,6 +9,7 @@ const PatientDetails = ({ patientID }) => {
   const [patientExercises, setPatientExercises] = useState([]);
   const [convos, setConvos] = useState([]);
   const [editing, setEditing] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
     const fetchPatientDetails = async () => {
@@ -85,6 +86,7 @@ const PatientDetails = ({ patientID }) => {
       exerciseRoutine: patientExercises,
     });
     setEditing(false);
+    setShowAlert(true);
   };
 
   return (
@@ -101,7 +103,7 @@ const PatientDetails = ({ patientID }) => {
           <div className="flex justify-between items-center w-full text-xl font-bold mt-10">
             <p>Exercise Routine</p>
             {editing ? (
-              <div>
+              <div className="flex gap-2 items-center">
                 <button
                   className="btn bg-dark-teal text-white"
                   onClick={() => handleSaveRoutine()}
@@ -179,6 +181,19 @@ const PatientDetails = ({ patientID }) => {
         takenExercises={patientExercises.map((e) => e.id)}
         onAddExercises={handleAddExercise}
       />
+      {showAlert && (
+        <div
+          role="alert"
+          className="alert alert-success sticky bottom-2 text-white"
+        >
+          <CheckCircle2 />
+          Exercise routine changes saved.
+          <X
+            className="cursor-pointer hover:text-gray-200"
+            onClick={() => setShowAlert(false)}
+          />
+        </div>
+      )}
     </div>
   );
 };
