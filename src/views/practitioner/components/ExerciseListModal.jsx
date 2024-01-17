@@ -1,56 +1,101 @@
 import { useState } from "react";
 
-const ExerciseListModal = ({ exercises, onAddExercises, onClose }) => {
-  const [selectedExercises, setSelectedExercises] = useState([]);
+const id = "exercise_list_modal";
+const defaultForm = {
+  id: "",
+  sets: "",
+  reps: "",
+  notes: "",
+};
 
-  const handleSelectExercise = (exerciseId) => {
-    setSelectedExercises((prev) => {
-      if (prev.includes(exerciseId)) {
-        return prev.filter((id) => id !== exerciseId);
-      } else {
-        return [...prev, exerciseId];
-      }
-    });
-  };
+const ExerciseListModal = ({ availableExercises, onAddExercises }) => {
+  const [formState, setFormState] = useState(defaultForm);
 
   const handleClose = () => {
-    document.getElementById("exercise_list_modal").close();
-    onClose();
+    document.getElementById(id).close();
+    setFormState(defaultForm);
   };
 
   const handleSubmit = () => {
-    onAddExercises(selectedExercises);
+    if (
+      !formState.id ||
+      isNaN(parseInt(formState.sets, 10)) ||
+      isNaN(parseInt(formState.reps, 10))
+    )
+      return;
+    onAddExercises(formState);
     handleClose();
   };
 
+  const onFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormState((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
   return (
-    <dialog id="exercise_list_modal" className="modal">
+    <dialog id={id} className="modal">
       <div className="modal-box">
-        <form method="dialog">
-          <button
+        <button
           type="button"
           className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
           onClick={handleClose}
         >
           ✕
         </button>
-        </form>
-        <h3 className="font-bold text-lg">Select Exercises</h3>
-        <div className="py-4">
-          {exercises.map((exercise) => (
-            <div key={exercise.id} className="flex items-center">
-              <input
-                type="checkbox"
-                checked={selectedExercises.includes(exercise.id)}
-                onChange={() => handleSelectExercise(exercise.id)}
-                className="checkbox checkbox-primary mt-1 border-gray-500 active:bg-gray-500 active:text-gray-500 focus:ring-gray-500 dark:focus:ring-gray-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 text-gray-600"
-              />
-              <span className="ml-2">{exercise.title}</span>
-            </div>
-          ))}
+        <h3 className="font-bold text-lg">Add Exercise</h3>
+        <div className="grid grid-cols-2 gap-4 p-4 items-center">
+          <div className="font-bold">Title</div>
+          <select
+            name="id"
+            className="select select-bordered w-full max-w-xs"
+            onChange={onFormChange}
+            value={formState.id}
+          >
+            <option disabled value="">
+              Select Exercise
+            </option>
+            {availableExercises.map((exercise) => (
+              <option key={exercise.id} value={exercise.id}>
+                {exercise.title}
+              </option>
+            ))}
+          </select>
+          <div className="font-bold">Sets</div>
+          <input
+            name="sets"
+            type="number"
+            min="1"
+            className="w-full px-3 py-2 border rounded-md"
+            onChange={onFormChange}
+            value={formState.sets}
+          />
+          <div className="font-bold">Reps</div>
+          <input
+            name="reps"
+            type="number"
+            min="1"
+            className="w-full px-3 py-2 border rounded-md"
+            onChange={onFormChange}
+            value={formState.reps}
+          />
+          <div className="col-span-2">
+            <div className="font-bold">Additional Notes</div>
+            <textarea
+              name="notes"
+              className="w-full px-3 py-2 border rounded-md"
+              onChange={onFormChange}
+              value={formState.notes}
+            ></textarea>
+          </div>
         </div>
         <div className="modal-action">
-          <button onClick={handleSubmit} className="btn bg-gray-800 text-white hover:bg-gray-600">
+          <button
+            onClick={handleSubmit}
+            className="btn bg-gray-800 text-white hover:bg-gray-600"
+          >
             Add to Routine
           </button>
         </div>
