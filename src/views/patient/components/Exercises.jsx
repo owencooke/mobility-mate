@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MoveLeft, MoveRight, Dot } from "lucide-react";
+import { MoveLeft, MoveRight, Dot, LogOut } from "lucide-react";
 
 const ExerciseSummary = ({ exercise }) => {
   return (
@@ -111,6 +111,19 @@ export default function Exercises({ exercises }) {
         </div>
         <div className="text-2xl rounded-full cursor-pointer">
           <MoveRight onClick={nextSlide} size={20} />
+        </div>
+      </div>
+      <div className="h-1/5 flex flex-col justify-between shadow-[0_0_5px_0_rgba(0,0,0,0.2)] rounded-box w-full p-4">
+        <h3 className="flex items-center justify-between gap-1 text-lg font-medium text-left w-full">
+          Done for the day?
+          <button className="text-light-teal flex gap-2 items-center">
+            <LogOut size={20} />
+          </button>
+        </h3>
+        <div>Your progress for today</div>
+        <div className="flex items-center text-base gap-4">
+          <progress className="progress w-56" value="75" max="100" />
+          <p className="mb-1 text-sm">75%</p>
         </div>
       </div>
     </>

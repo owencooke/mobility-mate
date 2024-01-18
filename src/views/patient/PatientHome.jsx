@@ -6,13 +6,11 @@ import VoiceAI from "./components/VoiceAI";
 import { db, getCurrentUser } from "../../../firebaseConfig";
 import axios from "axios";
 import apiUrl from "../../config";
-import { LogOut } from "lucide-react";
 import "./styles.css";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Conversation from "./components/Conversation";
 
 const PatientHome = () => {
-  const navigate = useNavigate();
   const { patientID, practitionerID } = useParams();
   const [patient, setPatient] = useState(null);
   const [convo, setConvo] = useState([]);
@@ -147,23 +145,26 @@ const PatientHome = () => {
     startConversation();
   }, [patientID, practitionerID, updateGptResponse]);
 
-  const handleEndSession = async () => {
-    try {
-      await axios.post(
-        `${apiUrl}/conversation/end`,
-        {},
-        {
-          params: new URLSearchParams({
-            patient: patientID,
-            practitioner: practitionerID,
-          }),
-        }
-      );
-      navigate("/");
-    } catch (error) {
-      console.error("Error ending conversation:", error);
-    }
-  };
+  useEffect(() => {
+    const handleEndSession = async () => {
+      try {
+        await axios.post(
+          `${apiUrl}/conversation/end`,
+          {},
+          {
+            params: new URLSearchParams({
+              patient: patientID,
+              practitioner: practitionerID,
+            }),
+          }
+        );
+      } catch (error) {
+        console.error("Error ending conversation:", error);
+      }
+    };
+    window.addEventListener("beforeunload", handleEndSession);
+    return () => window.removeEventListener("beforeunload", handleEndSession);
+  }, [patientID, practitionerID]);
 
   return (
     <div className="outer-frame text-dark-teal  ">
@@ -206,22 +207,6 @@ const PatientHome = () => {
               ) : (
                 <div className="skeleton h-full w-full mb-6"></div>
               )}
-              <div className="h-1/5 flex flex-col justify-between shadow-[0_0_5px_0_rgba(0,0,0,0.2)] rounded-box w-full p-4">
-                <h3 className="flex items-center justify-between gap-1 text-lg font-medium text-left w-full">
-                  Done for the day?
-                  <button
-                    className="text-light-teal flex gap-2 items-center"
-                    onClick={handleEndSession}
-                  >
-                    <LogOut size={20} />
-                  </button>
-                </h3>
-                <div>Your progress for today</div>
-                <div className="flex items-center text-base gap-4">
-                  <progress className="progress w-56" value="75" max="100" />
-                  <p className="mb-1 text-sm">75%</p>
-                </div>
-              </div>
             </div>
           </div>
         </main>
