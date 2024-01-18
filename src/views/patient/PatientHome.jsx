@@ -201,16 +201,13 @@ const PatientHome = () => {
             </div>
             <div className="w-1/4 h-full flex flex-col items-center ">
               {exercises.length > 0 ? (
-                <div className="h-4/5 overflow-x-visible w-full m-auto flex flex-col rounded-box">
-                  <Exercises exercises={exercises} />
-                </div>
+                <Exercises exercises={exercises} />
               ) : (
                 <div className="skeleton h-full w-full mb-6"></div>
               )}
             </div>
           </div>
         </main>
-        {/* TODO: finish button that calls conversation/end */}
       </div>
     </div>
   );
