@@ -1,42 +1,50 @@
-import { useState } from 'react';
-import { MoveLeft, MoveRight, Dot } from 'lucide-react';
+import { useState } from "react";
+import { MoveLeft, MoveRight, Dot } from "lucide-react";
 
-const ExerciseSummary = ({ image, title, description }) => {
+const ExerciseSummary = ({ exercise }) => {
   return (
     <div className="flex flex-col gap-2">
       <div className="h-44 w-full">
         <img
           className="h-full w-full object-contain border-[1px] rounded-box "
-          src={image}
+          src={exercise.image}
           alt="Exercise"
         />
       </div>
       <div className="flex flex-col gap-2 items-start">
-        <div className="font-medium">{title}</div>
-        <div>{description}</div>
+        <div className="font-medium">{exercise.title}</div>
+        <div>{exercise.description}</div>
+      </div>
+      <div className="grid grid-cols-4 gap-2 w-48">
+        <div className="font-bold">Sets</div>
+        <div>{exercise.sets}</div>
+        <div className="font-bold">Reps</div>
+        <div>{exercise.reps}</div>
       </div>
     </div>
   );
 };
 
-const ExerciseView = ({ image, steps }) => {
+const ExerciseView = ({ exercise }) => {
   return (
     <div className="flex flex-col gap-2">
       <div className="h-44 w-full">
         <img
           className="h-full w-full object-contain border-[1px] rounded-box "
-          src={image}
+          src={exercise.image}
           alt="Exercise"
         />
       </div>
       <div className="flex flex-col gap-2 items-start">
         <div className="font-medium">Steps</div>
-        <ul className='overflow-y-scroll line-clamp-3'>
-          {steps.split('\n').map((step, index) => (
+        <ul className="overflow-y-scroll line-clamp-3">
+          {exercise.steps.split("\n").map((step, index) => (
             <li key={index}>{step}</li>
           ))}
         </ul>
       </div>
+      <div className="font-medium mt-2">Additional Notes</div>
+      <div>{exercise.notes}</div>
     </div>
   );
 };
@@ -72,12 +80,7 @@ export default function Exercises({ exercises }) {
           Assigned Exercises
         </div>
         <div className="flex flex-col h-full justify-between p-3 gap-2">
-          <ExerciseComponent
-            image={exercises[currentIndex].image}
-            title={exercises[currentIndex].title}
-            description={exercises[currentIndex].description}
-            steps={exercises[currentIndex].steps}
-          />
+          <ExerciseComponent exercise={exercises[currentIndex]} />
           <div className="px-6 flex justify-center">
             <button
               onClick={() => {
@@ -85,7 +88,7 @@ export default function Exercises({ exercises }) {
               }}
               className="btn bg-light-teal text-white"
             >
-              {showDetails ? 'Back' : 'View'}
+              {showDetails ? "Back" : "View"}
             </button>
           </div>
         </div>
@@ -101,7 +104,7 @@ export default function Exercises({ exercises }) {
               key={i}
               onClick={() => goToSlide(i)}
               className={`cursor-pointer rounded-full ${
-                currentIndex === i ? 'border-2' : ''
+                currentIndex === i ? "border-2" : ""
               }`}
             />
           ))}

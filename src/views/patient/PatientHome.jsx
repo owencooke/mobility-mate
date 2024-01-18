@@ -1,48 +1,76 @@
-import Navbar from './components/Navbar';
-import Exercises from './components/Exercises';
-import './styles.css';
-import { useState, useEffect, useCallback } from 'react';
-import VoiceAI from './components/VoiceAI';
-import { db, getCurrentUser } from '../../../firebaseConfig';
-import axios from 'axios';
-import apiUrl from '../../config';
-import { LogOut } from 'lucide-react';
-import './styles.css';
-import { useNavigate, useParams } from 'react-router-dom';
-import Conversation from './components/Conversation';
+import Navbar from "./components/Navbar";
+import Exercises from "./components/Exercises";
+import "./styles.css";
+import { useState, useEffect, useCallback } from "react";
+import VoiceAI from "./components/VoiceAI";
+import { db, getCurrentUser } from "../../../firebaseConfig";
+import axios from "axios";
+import apiUrl from "../../config";
+import { LogOut } from "lucide-react";
+import "./styles.css";
+import { useNavigate, useParams } from "react-router-dom";
+import Conversation from "./components/Conversation";
 
 const PatientHome = () => {
   const navigate = useNavigate();
   const { patientID, practitionerID } = useParams();
   const [patient, setPatient] = useState(null);
   const [convo, setConvo] = useState([]);
-  const [userInput, setUserInput] = useState('');
+  const [userInput, setUserInput] = useState("");
   const [exercises, setExercises] = useState([]);
   const [isRecording, setIsRecording] = useState(false);
 
   useEffect(() => {
     const fetchPatientDetails = async () => {
-      const currentUser = await getCurrentUser();
+      try {
+        const currentUser = await getCurrentUser();
 
-      // Fetch patient details
-      const patientRef = db
-        .collection('practitioners')
-        .doc(currentUser.uid)
-        .collection('patients')
-        .doc(patientID);
+        // Fetch patient details
+        const patientRef = db
+          .collection("practitioners")
+          .doc(currentUser.uid)
+          .collection("patients")
+          .doc(patientID);
 
-      const unsubscribePatient = patientRef.onSnapshot((doc) => {
-        if (doc.exists) {
-          const patientData = doc.data();
-          setPatient(patientData);
-        } else {
-          console.error('Patient not found');
-        }
-      });
+        const unsubscribePatient = patientRef.onSnapshot(async (doc) => {
+          if (doc.exists) {
+            const patientData = doc.data();
+            setPatient(patientData);
 
-      return () => {
-        unsubscribePatient();
-      };
+            if (!patientData.exerciseRoutine) return;
+
+            // Fetch exercises
+            const allExercises = (
+              await db
+                .collection("practitioners")
+                .doc(currentUser.uid)
+                .collection("exercises")
+                .get()
+            ).docs.map((exerciseDoc) => ({
+              id: exerciseDoc.id,
+              ...exerciseDoc.data(),
+            }));
+
+            // Combine patient-specific data to each exercise
+            setExercises(
+              patientData.exerciseRoutine.map((patientExercise) => {
+                const matchingExercise = allExercises.find(
+                  (exercise) => exercise.id === patientExercise.id
+                );
+                return { ...matchingExercise, ...patientExercise };
+              })
+            );
+          } else {
+            console.error("Patient not found");
+          }
+        });
+
+        return () => {
+          unsubscribePatient();
+        };
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
 
     fetchPatientDetails();
@@ -65,9 +93,9 @@ const PatientHome = () => {
         { message: userInput }
       );
       updateGptResponse(response.data.reply);
-      setUserInput('');
+      setUserInput("");
     } catch (error) {
-      console.error('Error fetching conversation start:', error);
+      console.error("Error fetching conversation start:", error);
     }
   };
 
@@ -77,8 +105,8 @@ const PatientHome = () => {
     }
     setConvo((prevConvo) => {
       const lastMessage = prevConvo[prevConvo.length - 1];
-      if (!lastMessage || lastMessage.type === 'gpt') {
-        return [...prevConvo, { type: 'user', text: newMessage }];
+      if (!lastMessage || lastMessage.type === "gpt") {
+        return [...prevConvo, { type: "user", text: newMessage }];
       }
       return prevConvo.map((message, index) =>
         index === prevConvo.length - 1
@@ -94,8 +122,8 @@ const PatientHome = () => {
     }
     setConvo((prevConvo) => {
       const lastMessage = prevConvo[prevConvo.length - 1];
-      if (!lastMessage || lastMessage.type === 'user') {
-        return [...prevConvo, { type: 'gpt', text: newResponse }];
+      if (!lastMessage || lastMessage.type === "user") {
+        return [...prevConvo, { type: "gpt", text: newResponse }];
       }
       return prevConvo;
     });
@@ -113,20 +141,11 @@ const PatientHome = () => {
         );
         updateGptResponse(response.data.reply);
       } catch (error) {
-        console.error('Error fetching conversation start:', error);
-      }
-
-      try {
-        const response = await axios.get(
-          `${apiUrl}/exercise/get_all?${queryParams.toString()}`
-        );
-        setExercises(response.data.exercises);
-      } catch (error) {
-        console.error('Error fetching conversation start:', error);
+        console.error("Error fetching conversation start:", error);
       }
     };
     startConversation();
-  }, []);
+  }, [patientID, practitionerID, updateGptResponse]);
 
   const handleEndSession = async () => {
     try {
@@ -140,9 +159,9 @@ const PatientHome = () => {
           }),
         }
       );
-      navigate('/');
+      navigate("/");
     } catch (error) {
-      console.error('Error ending conversation:', error);
+      console.error("Error ending conversation:", error);
     }
   };
 
