@@ -4,13 +4,11 @@ import { MoveLeft, MoveRight, Dot, PlayCircle, StopCircle } from "lucide-react";
 const ExerciseComponent = ({ exercise, isWorkingOut }) => {
   return (
     <div className="flex flex-col gap-2 p-4">
-      {/* <div className="flex-grow bg-blue-500 overflow-hidden"> */}
       <img
-        className="h-1/4 object-contain border-[1px] rounded-box"
+        className="object-contain border-[1px] rounded-box"
         src={exercise.image}
         alt="Exercise"
       />
-      {/* </div> */}
       <div className="flex flex-col gap-2">
         <div className="font-bold">{exercise.title}</div>
         {!isWorkingOut && <div>{exercise.description}</div>}
@@ -78,8 +76,8 @@ export default function Exercises({
   );
 
   return (
-    <div className={isWorkingOut && "flex gap-8 h-full"}>
-      <div className={isWorkingOut && "flex flex-col w-1/2"}>
+    <div className={isWorkingOut ? "flex gap-8 h-full" : "flex flex-col"}>
+      <div className={isWorkingOut ? "flex flex-col w-1/2" : "flex-shrink-0"}>
         <div className="shadow-[0_0_5px_0_rgba(0,0,0,0.2)] rounded-box flex flex-col">
           <div className="px-4 py-2 border-b-2 font-medium text-lg">
             Assigned Exercises
@@ -112,7 +110,7 @@ export default function Exercises({
       </div>
       {/* Workout Progress component */}
       <div
-        className={`${isWorkingOut && "w-1/2"}
+        className={`${isWorkingOut ? "w-1/2" : "flex-grow"}
           shadow-[0_0_5px_0_rgba(0,0,0,0.2)] rounded-box p-4`}
       >
         <div className="flex justify-between">

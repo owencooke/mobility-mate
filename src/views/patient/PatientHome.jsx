@@ -1,12 +1,10 @@
 import Navbar from "./components/Navbar";
 import Exercises from "./components/Exercises";
-import "./styles.css";
 import { useState, useEffect, useCallback } from "react";
 import VoiceAI from "./components/VoiceAI";
 import { db, getCurrentUser } from "../../../firebaseConfig";
 import axios from "axios";
 import apiUrl from "../../config";
-import "./styles.css";
 import { useParams } from "react-router-dom";
 import Conversation from "./components/Conversation";
 
@@ -179,58 +177,57 @@ const PatientHome = () => {
     );
 
   return (
-    <div className="h-screen overflow-hidden text-dark-teal border-[20px] border-white">
-      <div className="border-2 bg-base-100 rounded-xl box-border">
-        <Navbar patient={patient} />
-        <main
-          className={`p-6 h-full
-              ${
-                isWorkingOut ? "grid grid-cols-3 gap-8" : "flex justify-between"
-              }`}
+    // FIXME: height for patient home should match screen height
+    // however this causes issues w/ images currently
+    // old properties for fixed screen height: h-[calc(100vh-40px)] overflow-hidden
+    <div className="flex flex-col border-2 bg-base-100 rounded-xl box-border m-[20px] text-dark-teal ">
+      <Navbar patient={patient} />
+      <main
+        className={`p-6 h-inherit
+              ${isWorkingOut ? "grid grid-cols-3 gap-8" : "flex"}`}
+      >
+        <div
+          className={`${
+            !isWorkingOut && "w-1/3"
+          } flex flex-col justify-between`}
         >
-          <div className="flex flex-col justify-between">
-            <Conversation
-              convo={convo}
-              isRecording={isRecording}
-              setIsRecording={setIsRecording}
+          <Conversation
+            convo={convo}
+            isRecording={isRecording}
+            setIsRecording={setIsRecording}
+          />
+          <form className="flex items-center" onSubmit={handleFormSubmit}>
+            <input
+              type="text"
+              placeholder="You can also type here..."
+              className="input input-bordered w-full max-w-xs mr-2"
+              value={userInput}
+              onChange={handleInputChange}
             />
-            <form className="flex items-center" onSubmit={handleFormSubmit}>
-              <input
-                type="text"
-                placeholder="You can also type here..."
-                className="input input-bordered w-full max-w-xs mr-2"
-                value={userInput}
-                onChange={handleInputChange}
-              />
-              <button className="btn bg-dark-teal text-white">Prompt</button>
-            </form>
-          </div>
-          {isWorkingOut && (
-            <div className="col-span-2 row-span-2 h-full">{exerciseBlock}</div>
-          )}
-          <div
-            className={
-              isWorkingOut
-                ? "flex flex-col justify-between items-center"
-                : "w-2/4 flex flex-col justify-between items-center"
-            }
-          >
-            <VoiceAI
-              patientID={patientID}
-              practitionerID={practitionerID}
-              updateUserMessage={updateUserMessage}
-              updateGptResponse={updateGptResponse}
-              isRecording={isRecording}
-              setIsRecording={setIsRecording}
-            />
-          </div>
-          {!isWorkingOut && (
-            <div className="h-full flex-col items-center w-1/4">
-              {exerciseBlock}
-            </div>
-          )}
-        </main>
-      </div>
+            <button className="btn bg-dark-teal text-white">Prompt</button>
+          </form>
+        </div>
+        {isWorkingOut && (
+          <div className="col-span-2 row-span-2 h-full">{exerciseBlock}</div>
+        )}
+        <div
+          className={
+            isWorkingOut
+              ? "flex flex-col justify-between items-center"
+              : "w-1/3 flex flex-col justify-between items-center"
+          }
+        >
+          <VoiceAI
+            patientID={patientID}
+            practitionerID={practitionerID}
+            updateUserMessage={updateUserMessage}
+            updateGptResponse={updateGptResponse}
+            isRecording={isRecording}
+            setIsRecording={setIsRecording}
+          />
+        </div>
+        {!isWorkingOut && <div className="w-1/3">{exerciseBlock}</div>}
+      </main>
     </div>
   );
 };
