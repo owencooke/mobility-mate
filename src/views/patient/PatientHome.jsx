@@ -17,6 +17,7 @@ const PatientHome = () => {
   const [userInput, setUserInput] = useState("");
   const [exercises, setExercises] = useState([]);
   const [isRecording, setIsRecording] = useState(false);
+  const [isWorkingOut, setIsWorkingOut] = useState(false);
 
   useEffect(() => {
     const fetchPatientDetails = async () => {
@@ -129,18 +130,18 @@ const PatientHome = () => {
 
   useEffect(() => {
     const startConversation = async () => {
-      const queryParams = new URLSearchParams({
-        patient: patientID,
-        practitioner: practitionerID,
-      });
-      try {
-        const response = await axios.get(
-          `${apiUrl}/conversation/start?${queryParams.toString()}`
-        );
-        updateGptResponse(response.data.reply);
-      } catch (error) {
-        console.error("Error fetching conversation start:", error);
-      }
+      // const queryParams = new URLSearchParams({
+      //   patient: patientID,
+      //   practitioner: practitionerID,
+      // });
+      // try {
+      //   const response = await axios.get(
+      //     `${apiUrl}/conversation/start?${queryParams.toString()}`
+      //   );
+      //   updateGptResponse(response.data.reply);
+      // } catch (error) {
+      //   console.error("Error fetching conversation start:", error);
+      // }
     };
     startConversation();
   }, [patientID, practitionerID, updateGptResponse]);
@@ -166,13 +167,28 @@ const PatientHome = () => {
     return () => window.removeEventListener("beforeunload", handleEndSession);
   }, [patientID, practitionerID]);
 
+  const exerciseBlock =
+    exercises.length > 0 ? (
+      <Exercises
+        exercises={exercises}
+        isWorkingOut={isWorkingOut}
+        setIsWorkingOut={(bool) => setIsWorkingOut(bool)}
+      />
+    ) : (
+      <div className="skeleton h-full w-full mb-6"></div>
+    );
+
   return (
     <div className="outer-frame text-dark-teal  ">
       <div className="inner-frame flex flex-col h-full overflow-hidden">
         <Navbar patient={patient} />
         <main className="flex-grow p-6 overflow-hidden">
-          <div className="flex h-full">
-            <div className="w-1/4 flex flex-col justify-between gap-6 h-full left-column">
+          <div
+            className={
+              isWorkingOut ? "grid grid-cols-3 gap-8" : "flex justify-between"
+            }
+          >
+            <div className="flex flex-col justify-between">
               <Conversation
                 convo={convo}
                 isRecording={isRecording}
@@ -189,7 +205,18 @@ const PatientHome = () => {
                 <button className="btn bg-dark-teal text-white">Prompt</button>
               </form>
             </div>
-            <div className="w-2/4 h-full flex flex-col justify-between items-center">
+            {isWorkingOut && (
+              <div className="h-full col-span-2 row-span-2">
+                {exerciseBlock}
+              </div>
+            )}
+            <div
+              className={
+                isWorkingOut
+                  ? "flex flex-col justify-between items-center"
+                  : "w-2/4 flex flex-col justify-between items-center"
+              }
+            >
               <VoiceAI
                 patientID={patientID}
                 practitionerID={practitionerID}
@@ -199,13 +226,11 @@ const PatientHome = () => {
                 setIsRecording={setIsRecording}
               />
             </div>
-            <div className="w-1/4 h-full flex flex-col items-center ">
-              {exercises.length > 0 ? (
-                <Exercises exercises={exercises} />
-              ) : (
-                <div className="skeleton h-full w-full mb-6"></div>
-              )}
-            </div>
+            {!isWorkingOut && (
+              <div className="h-full flex-col items-center w-1/4">
+                {exerciseBlock}
+              </div>
+            )}
           </div>
         </main>
       </div>
