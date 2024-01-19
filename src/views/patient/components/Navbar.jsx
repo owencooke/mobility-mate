@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 const Navbar = ({ patient }) => {
   const navigate = useNavigate();
   return (
-    <div className="navbar h-16 bg-base-100 border-b-2 px-6">
+    <div className="navbar h-16 border-b-2 px-6">
       <div className="w-1/4 flex justify-start">
         <div className="text-xl font-bold flex gap-2">
           Welcome Back!{" "}

@@ -179,59 +179,56 @@ const PatientHome = () => {
     );
 
   return (
-    <div className="outer-frame text-dark-teal  ">
-      <div className="inner-frame flex flex-col h-full overflow-hidden">
+    <div className="h-screen overflow-hidden text-dark-teal border-[20px] border-white">
+      <div className="border-2 bg-base-100 rounded-xl box-border">
         <Navbar patient={patient} />
-        <main className="flex-grow p-6 overflow-hidden">
+        <main
+          className={`p-6 h-full
+              ${
+                isWorkingOut ? "grid grid-cols-3 gap-8" : "flex justify-between"
+              }`}
+        >
+          <div className="flex flex-col justify-between">
+            <Conversation
+              convo={convo}
+              isRecording={isRecording}
+              setIsRecording={setIsRecording}
+            />
+            <form className="flex items-center" onSubmit={handleFormSubmit}>
+              <input
+                type="text"
+                placeholder="You can also type here..."
+                className="input input-bordered w-full max-w-xs mr-2"
+                value={userInput}
+                onChange={handleInputChange}
+              />
+              <button className="btn bg-dark-teal text-white">Prompt</button>
+            </form>
+          </div>
+          {isWorkingOut && (
+            <div className="col-span-2 row-span-2 h-full">{exerciseBlock}</div>
+          )}
           <div
             className={
-              isWorkingOut ? "grid grid-cols-3 gap-8" : "flex justify-between"
+              isWorkingOut
+                ? "flex flex-col justify-between items-center"
+                : "w-2/4 flex flex-col justify-between items-center"
             }
           >
-            <div className="flex flex-col justify-between">
-              <Conversation
-                convo={convo}
-                isRecording={isRecording}
-                setIsRecording={setIsRecording}
-              />
-              <form className="flex items-center" onSubmit={handleFormSubmit}>
-                <input
-                  type="text"
-                  placeholder="You can also type here..."
-                  className="input input-bordered w-full max-w-xs mr-2"
-                  value={userInput}
-                  onChange={handleInputChange}
-                />
-                <button className="btn bg-dark-teal text-white">Prompt</button>
-              </form>
-            </div>
-            {isWorkingOut && (
-              <div className="h-full col-span-2 row-span-2">
-                {exerciseBlock}
-              </div>
-            )}
-            <div
-              className={
-                isWorkingOut
-                  ? "flex flex-col justify-between items-center"
-                  : "w-2/4 flex flex-col justify-between items-center"
-              }
-            >
-              <VoiceAI
-                patientID={patientID}
-                practitionerID={practitionerID}
-                updateUserMessage={updateUserMessage}
-                updateGptResponse={updateGptResponse}
-                isRecording={isRecording}
-                setIsRecording={setIsRecording}
-              />
-            </div>
-            {!isWorkingOut && (
-              <div className="h-full flex-col items-center w-1/4">
-                {exerciseBlock}
-              </div>
-            )}
+            <VoiceAI
+              patientID={patientID}
+              practitionerID={practitionerID}
+              updateUserMessage={updateUserMessage}
+              updateGptResponse={updateGptResponse}
+              isRecording={isRecording}
+              setIsRecording={setIsRecording}
+            />
           </div>
+          {!isWorkingOut && (
+            <div className="h-full flex-col items-center w-1/4">
+              {exerciseBlock}
+            </div>
+          )}
         </main>
       </div>
     </div>

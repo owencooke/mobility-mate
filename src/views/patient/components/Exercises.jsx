@@ -1,42 +1,42 @@
 import { useState } from "react";
 import { MoveLeft, MoveRight, Dot, PlayCircle, StopCircle } from "lucide-react";
 
-const ExerciseComponent = ({ exercise, showDetails }) => {
+const ExerciseComponent = ({ exercise, isWorkingOut }) => {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 p-4">
+      {/* <div className="flex-grow bg-blue-500 overflow-hidden"> */}
       <img
-        className="object-contain border-[1px] rounded-box"
+        className="h-1/4 object-contain border-[1px] rounded-box"
         src={exercise.image}
         alt="Exercise"
       />
-      <div className="flex flex-col gap-2 items-start flex-grow">
-        <div className="font-medium">
-          {showDetails ? "Steps" : exercise.title}
-        </div>
-        {showDetails ? (
-          <ul className="overflow-y-scroll line-clamp-3">
-            {exercise.steps.split("\n").map((step, index) => (
-              <li key={index}>{step}</li>
-            ))}
-          </ul>
-        ) : (
-          <div>{exercise.description}</div>
-        )}
-        {showDetails && (
-          <>
-            <div className="font-medium mt-2">Additional Notes</div>
-            <div>{exercise.notes}</div>
-          </>
-        )}
-      </div>
-      {!showDetails && (
+      {/* </div> */}
+      <div className="flex flex-col gap-2">
+        <div className="font-bold">{exercise.title}</div>
+        {!isWorkingOut && <div>{exercise.description}</div>}
         <div className="grid grid-cols-4 gap-2 w-48">
-          <div className="font-bold">Sets</div>
+          <div className="font-medium">Sets</div>
           <div>{exercise.sets}</div>
-          <div className="font-bold">Reps</div>
+          <div className="font-medium">Reps</div>
           <div>{exercise.reps}</div>
         </div>
-      )}
+        {isWorkingOut && (
+          <div>
+            <div className="font-medium">Steps</div>
+            <ul>
+              {exercise.steps.split("\n").map((step, index) => (
+                <li key={index}>{step}</li>
+              ))}
+            </ul>
+            {exercise.notes && (
+              <>
+                <div className="font-medium mt-2">Additional Notes</div>
+                <div>{exercise.notes}</div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -47,21 +47,18 @@ export default function Exercises({
   setIsWorkingOut,
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showDetails, setShowDetails] = useState(false);
   const [checkedSets, setCheckedSets] = useState(0);
 
   const prevSlide = () => {
     const isFirstSlide = currentIndex === 0;
     const newIndex = isFirstSlide ? exercises.length - 1 : currentIndex - 1;
     setCurrentIndex(newIndex);
-    setShowDetails(false);
   };
 
   const nextSlide = () => {
     const isLastSlide = currentIndex === exercises.length - 1;
     const newIndex = isLastSlide ? 0 : currentIndex + 1;
     setCurrentIndex(newIndex);
-    setShowDetails(false);
   };
 
   const goToSlide = (slideIndex) => setCurrentIndex(slideIndex);
@@ -83,26 +80,14 @@ export default function Exercises({
   return (
     <div className={isWorkingOut && "flex gap-8 h-full"}>
       <div className={isWorkingOut && "flex flex-col w-1/2"}>
-        <div className="flex-grow shadow-[0_0_5px_0_rgba(0,0,0,0.2)] rounded-box flex flex-col">
+        <div className="shadow-[0_0_5px_0_rgba(0,0,0,0.2)] rounded-box flex flex-col">
           <div className="px-4 py-2 border-b-2 font-medium text-lg">
             Assigned Exercises
           </div>
-          <div className="flex flex-col justify-between p-3 gap-2">
-            <ExerciseComponent
-              exercise={exercises[currentIndex]}
-              showDetails={showDetails}
-            />
-            <div className="px-6 flex justify-center">
-              <button
-                onClick={() => {
-                  setShowDetails(!showDetails);
-                }}
-                className="btn bg-light-teal text-white"
-              >
-                {showDetails ? "Back" : "View"}
-              </button>
-            </div>
-          </div>
+          <ExerciseComponent
+            exercise={exercises[currentIndex]}
+            isWorkingOut={isWorkingOut}
+          />
         </div>
         <div className="flex justify-evenly py-3">
           <div className="text-2xl rounded-full cursor-pointer">
