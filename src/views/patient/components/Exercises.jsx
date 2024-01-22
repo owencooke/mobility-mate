@@ -3,15 +3,22 @@ import { MoveLeft, MoveRight, Dot, PlayCircle, StopCircle } from "lucide-react";
 
 const ExerciseComponent = ({ exercise, isWorkingOut }) => {
   return (
-    <div className="flex flex-col gap-2 p-4">
-      <img
-        className="object-contain border-[1px] rounded-box"
-        src={exercise.image}
-        alt="Exercise"
-      />
-      <div className="flex flex-col gap-2">
-        <div className="font-bold">{exercise.title}</div>
-        {!isWorkingOut && <div>{exercise.description}</div>}
+    <div className={`${!isWorkingOut && "flex-col"} flex gap-2 p-4 h-full`}>
+      <div className={`${isWorkingOut ? "pr-3/5" : "flex-grow"} relative`}>
+        <img
+          className="absolute h-full w-full object-contain border-[1px] rounded-box"
+          src={exercise.image}
+          alt="Exercise"
+        />
+      </div>
+
+      <div className={`${isWorkingOut && "p-2"} flex flex-col gap-2`}>
+        {!isWorkingOut && (
+          <>
+            <div className="font-bold">{exercise.title}</div>
+            <div>{exercise.description}</div>
+          </>
+        )}
         <div className="grid grid-cols-4 gap-2 w-48">
           <div className="font-medium">Sets</div>
           <div>{exercise.sets}</div>
@@ -22,7 +29,7 @@ const ExerciseComponent = ({ exercise, isWorkingOut }) => {
           <div>
             <div className="font-medium">Steps</div>
             <ul>
-              {exercise.steps.split("\n").map((step, index) => (
+              {exercise.steps.split(/\r?\n/).map((step, index) => (
                 <li key={index}>{step}</li>
               ))}
             </ul>
@@ -76,41 +83,40 @@ export default function Exercises({
   );
 
   return (
-    <div className={isWorkingOut ? "flex gap-8 h-full" : "flex flex-col"}>
-      <div className={isWorkingOut ? "flex flex-col w-1/2" : "flex-shrink-0"}>
-        <div className="shadow-[0_0_5px_0_rgba(0,0,0,0.2)] rounded-box flex flex-col">
-          <div className="px-4 py-2 border-b-2 font-medium text-lg">
-            Assigned Exercises
-          </div>
-          <ExerciseComponent
-            exercise={exercises[currentIndex]}
-            isWorkingOut={isWorkingOut}
-          />
+    <div className="flex flex-col gap-2 h-full">
+      <div className="shadow-[0_0_5px_0_rgba(0,0,0,0.2)] rounded-box  flex-grow flex flex-col">
+        <div className="px-4 py-2 border-b-2 font-medium text-lg">
+          {isWorkingOut ? exercises[currentIndex].title : "Assigned Exercises"}
         </div>
-        <div className="flex justify-evenly py-3">
-          <div className="text-2xl rounded-full cursor-pointer">
-            <MoveLeft onClick={prevSlide} size={20} />
-          </div>
-          <div className="flex items-center justify-center">
-            {exercises.map((_, i) => (
-              <Dot
-                size={20}
-                key={i}
-                onClick={() => goToSlide(i)}
-                className={`cursor-pointer rounded-full ${
-                  currentIndex === i ? "border-2" : ""
-                }`}
-              />
-            ))}
-          </div>
-          <div className="text-2xl rounded-full cursor-pointer">
-            <MoveRight onClick={nextSlide} size={20} />
-          </div>
+        <ExerciseComponent
+          exercise={exercises[currentIndex]}
+          isWorkingOut={isWorkingOut}
+        />
+      </div>
+      <div className="flex justify-evenly py-3">
+        <div className="text-2xl rounded-full cursor-pointer">
+          <MoveLeft onClick={prevSlide} size={20} />
+        </div>
+        <div className="flex items-center justify-center">
+          {exercises.map((_, i) => (
+            <Dot
+              size={20}
+              key={i}
+              onClick={() => goToSlide(i)}
+              className={`cursor-pointer rounded-full ${
+                currentIndex === i ? "border-2" : ""
+              }`}
+            />
+          ))}
+        </div>
+        <div className="text-2xl rounded-full cursor-pointer">
+          <MoveRight onClick={nextSlide} size={20} />
         </div>
       </div>
+
       {/* Workout Progress component */}
       <div
-        className={`${isWorkingOut ? "w-1/2" : "flex-grow"}
+        className={`${isWorkingOut ? "flex justify-between" : ""}
           shadow-[0_0_5px_0_rgba(0,0,0,0.2)] rounded-box p-4`}
       >
         <div className="flex justify-between">
@@ -142,13 +148,13 @@ export default function Exercises({
           </button>
         </div>
         {isWorkingOut && (
-          <>
+          <div>
             <div className="grid grid-cols-2">
               <div className="font-medium">Exercise</div>
               <div className="font-medium">Completed Sets</div>
             </div>
             {exercises.map((exercise, idx) => (
-              <div key={idx} className="grid grid-cols-2">
+              <div key={idx} className="grid grid-cols-2 mt-1">
                 <div>{exercise.title}</div>
                 <div className="flex gap-2">
                   {Array.from({ length: exercise.sets }, (_, setIndex) => (
@@ -163,7 +169,7 @@ export default function Exercises({
                 </div>
               </div>
             ))}
-          </>
+          </div>
         )}
       </div>
     </div>

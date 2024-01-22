@@ -177,13 +177,10 @@ const PatientHome = () => {
     );
 
   return (
-    // FIXME: height for patient home should match screen height
-    // however this causes issues w/ images currently
-    // old properties for fixed screen height: h-[calc(100vh-40px)] overflow-hidden
-    <div className="flex flex-col border-2 bg-base-100 rounded-xl box-border m-[20px] text-dark-teal ">
+    <div className="flex flex-col border-2 bg-base-100 rounded-xl h-[calc(100vh-32px)] overflow-hidden box-border m-[16px] text-dark-teal ">
       <Navbar patient={patient} />
       <main
-        className={`p-6 h-inherit
+        className={`p-6 h-full
               ${isWorkingOut ? "grid grid-cols-3 gap-8" : "flex"}`}
       >
         <div
