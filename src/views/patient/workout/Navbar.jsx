@@ -1,11 +1,11 @@
 import logo from "/images/mobilityMate-NoBg-lg.png";
 import { useNavigate } from "react-router-dom";
 
-const Navbar = ({ practionerID, patientID }) => {
+const Navbar = ({ practitionerID, patientID }) => {
   const navigate = useNavigate();
 
   const handleEndWorkout = () => {
-    navigate(`/${practionerID}/patient/${patientID}`);
+    navigate(`/${practitionerID}/patient/${patientID}`);
   };
 
   return (

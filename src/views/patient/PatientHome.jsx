@@ -2,7 +2,7 @@ import Navbar from "./components/Navbar";
 import Exercises from "./components/Exercises";
 import { useState, useEffect, useCallback } from "react";
 import VoiceAI from "./components/VoiceAI";
-import { db, getCurrentUser } from "../../../firebaseConfig";
+import { db } from "../../../firebaseConfig";
 import axios from "axios";
 import apiUrl from "../../config";
 import { useParams } from "react-router-dom";
@@ -19,12 +19,10 @@ const PatientHome = () => {
   useEffect(() => {
     const fetchPatientDetails = async () => {
       try {
-        const currentUser = await getCurrentUser();
-
         // Fetch patient details
         const patientRef = db
           .collection("practitioners")
-          .doc(currentUser.uid)
+          .doc(practitionerID)
           .collection("patients")
           .doc(patientID);
 
@@ -39,7 +37,7 @@ const PatientHome = () => {
             const allExercises = (
               await db
                 .collection("practitioners")
-                .doc(currentUser.uid)
+                .doc(practitionerID)
                 .collection("exercises")
                 .get()
             ).docs.map((exerciseDoc) => ({
@@ -70,7 +68,7 @@ const PatientHome = () => {
     };
 
     fetchPatientDetails();
-  }, [patientID]);
+  }, [patientID, practitionerID]);
 
   const handleInputChange = (e) => {
     setUserInput(e.target.value);

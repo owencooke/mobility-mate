@@ -29,7 +29,7 @@ const ExerciseComponent = ({ exercise }) => {
   );
 };
 
-export default function Exercises({ exercises, practionerID, patientID }) {
+export default function Exercises({ exercises, practitionerID, patientID }) {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -48,7 +48,7 @@ export default function Exercises({ exercises, practionerID, patientID }) {
   const goToSlide = (slideIndex) => setCurrentIndex(slideIndex);
 
   const handleStartWorkout = () => {
-    navigate(`/${practionerID}/patient/${patientID}/workout`);
+    navigate(`/${practitionerID}/patient/${patientID}/workout`);
   };
 
   return (
