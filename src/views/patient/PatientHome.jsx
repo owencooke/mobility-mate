@@ -15,7 +15,6 @@ const PatientHome = () => {
   const [userInput, setUserInput] = useState("");
   const [exercises, setExercises] = useState([]);
   const [isRecording, setIsRecording] = useState(false);
-  const [isWorkingOut, setIsWorkingOut] = useState(false);
 
   useEffect(() => {
     const fetchPatientDetails = async () => {
@@ -165,29 +164,11 @@ const PatientHome = () => {
     return () => window.removeEventListener("beforeunload", handleEndSession);
   }, [patientID, practitionerID]);
 
-  const exerciseBlock =
-    exercises.length > 0 ? (
-      <Exercises
-        exercises={exercises}
-        isWorkingOut={isWorkingOut}
-        setIsWorkingOut={(bool) => setIsWorkingOut(bool)}
-      />
-    ) : (
-      <div className="skeleton h-full w-full mb-6"></div>
-    );
-
   return (
     <div className="flex flex-col border-2 bg-base-100 rounded-xl h-[calc(100vh-32px)] overflow-hidden box-border m-[16px] text-dark-teal ">
       <Navbar patient={patient} />
-      <main
-        className={`p-6 h-full
-              ${isWorkingOut ? "grid grid-cols-3 gap-8" : "flex"}`}
-      >
-        <div
-          className={`${
-            !isWorkingOut && "w-1/3"
-          } flex flex-col justify-between`}
-        >
+      <main className="p-6 h-full flex">
+        <div className="w-1/3 flex flex-col justify-between">
           <Conversation
             convo={convo}
             isRecording={isRecording}
@@ -204,16 +185,7 @@ const PatientHome = () => {
             <button className="btn bg-dark-teal text-white">Prompt</button>
           </form>
         </div>
-        {isWorkingOut && (
-          <div className="col-span-2 row-span-2 h-full">{exerciseBlock}</div>
-        )}
-        <div
-          className={
-            isWorkingOut
-              ? "flex flex-col justify-between items-center"
-              : "w-1/3 flex flex-col justify-between items-center"
-          }
-        >
+        <div className="w-1/3 flex flex-col justify-between items-center">
           <VoiceAI
             patientID={patientID}
             practitionerID={practitionerID}
@@ -223,7 +195,17 @@ const PatientHome = () => {
             setIsRecording={setIsRecording}
           />
         </div>
-        {!isWorkingOut && <div className="w-1/3">{exerciseBlock}</div>}
+        <div className="w-1/3">
+          {exercises.length > 0 ? (
+            <Exercises
+              exercises={exercises}
+              patientID={patientID}
+              practitionerID={practitionerID}
+            />
+          ) : (
+            <div className="skeleton h-full w-full mb-6"></div>
+          )}
+        </div>
       </main>
     </div>
   );

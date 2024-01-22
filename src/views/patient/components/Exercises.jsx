@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { MoveLeft, MoveRight, Dot, PlayCircle, StopCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { MoveLeft, MoveRight, Dot, PlayCircle } from "lucide-react";
 
-const ExerciseComponent = ({ exercise, isWorkingOut }) => {
+const ExerciseComponent = ({ exercise }) => {
   return (
-    <div className={`${!isWorkingOut && "flex-col"} flex gap-2 p-4 h-full`}>
-      <div className={`${isWorkingOut ? "pr-3/5" : "flex-grow"} relative`}>
+    <div className="flex-col flex gap-2 p-4 h-full">
+      <div className="flex-grow relative">
         <img
           className="absolute h-full w-full object-contain border-[1px] rounded-box"
           src={exercise.image}
@@ -12,47 +13,25 @@ const ExerciseComponent = ({ exercise, isWorkingOut }) => {
         />
       </div>
 
-      <div className={`${isWorkingOut && "p-2"} flex flex-col gap-2`}>
-        {!isWorkingOut && (
-          <>
-            <div className="font-bold">{exercise.title}</div>
-            <div>{exercise.description}</div>
-          </>
-        )}
+      <div className=" flex flex-col gap-2">
+        <>
+          <div className="font-bold">{exercise.title}</div>
+          <div>{exercise.description}</div>
+        </>
         <div className="grid grid-cols-4 gap-2 w-48">
           <div className="font-medium">Sets</div>
           <div>{exercise.sets}</div>
           <div className="font-medium">Reps</div>
           <div>{exercise.reps}</div>
         </div>
-        {isWorkingOut && (
-          <div>
-            <div className="font-medium">Steps</div>
-            <ul>
-              {exercise.steps.split(/\r?\n/).map((step, index) => (
-                <li key={index}>{step}</li>
-              ))}
-            </ul>
-            {exercise.notes && (
-              <>
-                <div className="font-medium mt-2">Additional Notes</div>
-                <div>{exercise.notes}</div>
-              </>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );
 };
 
-export default function Exercises({
-  exercises,
-  isWorkingOut,
-  setIsWorkingOut,
-}) {
+export default function Exercises({ exercises, practionerID, patientID }) {
+  const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [checkedSets, setCheckedSets] = useState(0);
 
   const prevSlide = () => {
     const isFirstSlide = currentIndex === 0;
@@ -68,30 +47,17 @@ export default function Exercises({
 
   const goToSlide = (slideIndex) => setCurrentIndex(slideIndex);
 
-  const handleToggle = () => setIsWorkingOut(!isWorkingOut);
-
-  const handleCheckboxChange = (e) =>
-    setCheckedSets(e.target.checked ? checkedSets + 1 : checkedSets - 1);
-
-  const percentComplete = Math.round(
-    (checkedSets /
-      exercises.reduce(
-        (total, exercise) => total + parseInt(exercise.sets),
-        0
-      )) *
-      100
-  );
+  const handleStartWorkout = () => {
+    navigate(`/${practionerID}/patient/${patientID}/workout`);
+  };
 
   return (
     <div className="flex flex-col gap-2 h-full">
       <div className="shadow-[0_0_5px_0_rgba(0,0,0,0.2)] rounded-box  flex-grow flex flex-col">
         <div className="px-4 py-2 border-b-2 font-medium text-lg">
-          {isWorkingOut ? exercises[currentIndex].title : "Assigned Exercises"}
+          Assigned Exercises
         </div>
-        <ExerciseComponent
-          exercise={exercises[currentIndex]}
-          isWorkingOut={isWorkingOut}
-        />
+        <ExerciseComponent exercise={exercises[currentIndex]} />
       </div>
       <div className="flex justify-evenly py-3">
         <div className="text-2xl rounded-full cursor-pointer">
@@ -115,62 +81,23 @@ export default function Exercises({
       </div>
 
       {/* Workout Progress component */}
-      <div
-        className={`${isWorkingOut ? "flex justify-between" : ""}
-          shadow-[0_0_5px_0_rgba(0,0,0,0.2)] rounded-box p-4`}
-      >
+      <div className="shadow-[0_0_5px_0_rgba(0,0,0,0.2)] rounded-box p-4">
         <div className="flex justify-between">
           <div>
-            <h3 className="text-lg font-medium">
-              {isWorkingOut
-                ? "Workout Progress"
-                : percentComplete
-                ? "Resume Workout"
-                : "Start Workout"}
-            </h3>
+            <h3 className="text-lg font-medium">Start Workout</h3>
             slow and steady wins the race 🐢
             <div className="flex items-center text-base gap-4">
-              <progress
-                className="progress w-56"
-                value={percentComplete}
-                max="100"
-              />
-              <p className="mb-1 text-sm">{percentComplete}%</p>
+              <progress className="progress w-56" value={0} max="100" />
+              <p className="mb-1 text-sm">0%</p>
             </div>
           </div>
           <button
-            className={`flex gap-2 ${
-              isWorkingOut ? "text-red" : "text-light-teal"
-            }`}
-            onClick={() => handleToggle()}
+            className="flex gap-2 text-light-teal"
+            onClick={() => handleStartWorkout()}
           >
-            {isWorkingOut ? <StopCircle size={48} /> : <PlayCircle size={48} />}
+            <PlayCircle size={48} />
           </button>
         </div>
-        {isWorkingOut && (
-          <div>
-            <div className="grid grid-cols-2">
-              <div className="font-medium">Exercise</div>
-              <div className="font-medium">Completed Sets</div>
-            </div>
-            {exercises.map((exercise, idx) => (
-              <div key={idx} className="grid grid-cols-2 mt-1">
-                <div>{exercise.title}</div>
-                <div className="flex gap-2">
-                  {Array.from({ length: exercise.sets }, (_, setIndex) => (
-                    <div key={setIndex} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        onChange={(e) => handleCheckboxChange(e)}
-                        className="checkbox checkbox-sm [--chkbg:theme(colors.light-teal)]"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
