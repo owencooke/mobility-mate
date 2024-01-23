@@ -7,8 +7,14 @@ const WorkoutPage = () => {
   const { patientID, practitionerID } = useParams();
   const [exercises, setExercises] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [checkboxStates, setCheckboxStates] = useState([]);
 
   const exercise = exercises[currentIndex];
+  const percentComplete = Math.round(
+    (checkboxStates.flat().filter((b) => b).length /
+      exercises.reduce((total, exercise) => total + (exercise.sets || 0), 0)) *
+      100
+  );
 
   useEffect(() => {
     const fetchPatientDetails = async () => {
@@ -27,7 +33,7 @@ const WorkoutPage = () => {
             if (!patientData.exerciseRoutine) return;
 
             // Fetch exercises
-            const allExercises = (
+            let allExercises = (
               await db
                 .collection("practitioners")
                 .doc(practitionerID)
@@ -39,13 +45,23 @@ const WorkoutPage = () => {
             }));
 
             // Combine patient-specific data to each exercise
-            setExercises(
-              patientData.exerciseRoutine.map((patientExercise) => {
+            allExercises = patientData.exerciseRoutine.map(
+              (patientExercise) => {
                 const matchingExercise = allExercises.find(
                   (exercise) => exercise.id === patientExercise.id
                 );
-                return { ...matchingExercise, ...patientExercise };
-              })
+                return {
+                  ...matchingExercise,
+                  ...patientExercise,
+                  sets: parseInt(patientExercise.sets),
+                };
+              }
+            );
+            setExercises(allExercises);
+            setCheckboxStates(
+              allExercises.map((exercise) =>
+                Array(exercise.sets || 0).fill(false)
+              )
             );
           } else {
             console.error("Patient not found");
@@ -67,20 +83,46 @@ const WorkoutPage = () => {
     setCurrentIndex((prev) => prev + inc);
   };
 
+  const handleCheckboxChange = (exerciseIndex, setIndex) => {
+    setCheckboxStates((prevCheckboxStates) => {
+      const newCheckboxStates = [...prevCheckboxStates];
+      newCheckboxStates[exerciseIndex][setIndex] =
+        !newCheckboxStates[exerciseIndex][setIndex];
+      return newCheckboxStates;
+    });
+  };
+
   return (
     <div className="h-screen w-full flex flex-col">
       <Navbar patientID={patientID} practitionerID={practitionerID} />
-      {/* Exercise Details */}
+      {/* Main Exercise Section */}
       {exercises.length !== 0 && (
         <div className="flex-grow flex gap-2 items-center px-12">
-          {/* Text */}
+          {/* Exercise Details */}
           <div className="w-1/2 flex flex-col gap-4">
             <div className="font-bold text-3xl">{exercise.title}</div>
-            <div className="grid grid-cols-4 gap-2 text-2xl">
-              <div className="font-medium">Sets</div>
-              <div>{exercise.sets}</div>
-              <div className="font-medium">Reps</div>
-              <div>{exercise.reps}</div>
+            <div className="flex gap-8 text-2xl">
+              <div className="flex items-center gap-4 font-medium">
+                <div>Sets</div>
+                <div className="flex gap-2">
+                  {checkboxStates[currentIndex].map((isChecked, setIndex) => (
+                    <div key={setIndex} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() =>
+                          handleCheckboxChange(currentIndex, setIndex)
+                        }
+                        className="checkbox checkbox-l [--chkbg:theme(colors.dark-teal)] border-dark-teal border-2"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="font-medium">Reps</div>
+                <div>{exercise.reps}</div>
+              </div>
             </div>
             <div className="text-xl">{exercise.steps}</div>
             <div className="text-xl">
@@ -88,7 +130,7 @@ const WorkoutPage = () => {
               {exercise.notes}
             </div>
           </div>
-          {/* Image */}
+          {/* Exercise Image */}
           <div className="w-1/2 h-full relative">
             <img
               className="absolute h-full w-full object-contain"
@@ -110,8 +152,8 @@ const WorkoutPage = () => {
         <div className="w-1/2 text-center">
           slow and steady wins the race 🐢
           <div className="flex items-center text-base gap-4">
-            <progress className="progress" value={0} max="100" />
-            <p className="mb-1 text-sm">0%</p>
+            <progress className="progress" value={percentComplete} max="100" />
+            <p className="mb-1 text-sm">{percentComplete}%</p>
           </div>
         </div>
         <div className="w-1/4 flex justify-end">
