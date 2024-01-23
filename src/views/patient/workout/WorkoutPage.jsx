@@ -6,6 +6,9 @@ import { useParams } from "react-router-dom";
 const WorkoutPage = () => {
   const { patientID, practitionerID } = useParams();
   const [exercises, setExercises] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const exercise = exercises[currentIndex];
 
   useEffect(() => {
     const fetchPatientDetails = async () => {
@@ -60,6 +63,10 @@ const WorkoutPage = () => {
     fetchPatientDetails();
   }, [patientID, practitionerID]);
 
+  const handleToggleIndex = (inc) => {
+    setCurrentIndex((prev) => prev + inc);
+  };
+
   return (
     <div className="h-screen w-full flex flex-col">
       <Navbar patientID={patientID} practitionerID={practitionerID} />
@@ -68,24 +75,24 @@ const WorkoutPage = () => {
         <div className="flex-grow flex gap-2 items-center px-12">
           {/* Text */}
           <div className="w-1/2 flex flex-col gap-4">
-            <div className="font-bold text-3xl">{exercises[0].title}</div>
+            <div className="font-bold text-3xl">{exercise.title}</div>
             <div className="grid grid-cols-4 gap-2 text-2xl">
               <div className="font-medium">Sets</div>
-              <div>{exercises[0].sets}</div>
+              <div>{exercise.sets}</div>
               <div className="font-medium">Reps</div>
-              <div>{exercises[0].reps}</div>
+              <div>{exercise.reps}</div>
             </div>
-            <div className="text-xl">{exercises[0].steps}</div>
+            <div className="text-xl">{exercise.steps}</div>
             <div className="text-xl">
               <div className="text-xl font-medium">Note from Practitioner</div>
-              {exercises[0].notes}
+              {exercise.notes}
             </div>
           </div>
           {/* Image */}
           <div className="w-1/2 h-full relative">
             <img
               className="absolute h-full w-full object-contain"
-              src={exercises[0].image}
+              src={exercise.image}
               alt="Exercise"
             />
           </div>
@@ -93,12 +100,13 @@ const WorkoutPage = () => {
       )}
       {/* Bottom Bar */}
       <div className="flex justify-between p-4 border-2 bg-base-100 box-border ">
-        <button
-          className="btn"
-          // onClick={() => handleEndWorkout()}
-        >
-          Previous
-        </button>
+        <div className="w-1/4">
+          {currentIndex !== 0 && (
+            <button className="btn" onClick={() => handleToggleIndex(-1)}>
+              Previous
+            </button>
+          )}
+        </div>
         <div className="w-1/2 text-center">
           slow and steady wins the race 🐢
           <div className="flex items-center text-base gap-4">
@@ -106,12 +114,16 @@ const WorkoutPage = () => {
             <p className="mb-1 text-sm">0%</p>
           </div>
         </div>
-        <button
-          className="btn bg-light-teal text-white"
-          // onClick={() => handleEndWorkout()}
-        >
-          Next
-        </button>
+        <div className="w-1/4 flex justify-end">
+          {currentIndex !== exercises.length - 1 && (
+            <button
+              className="btn bg-light-teal text-white"
+              onClick={() => handleToggleIndex(1)}
+            >
+              Next
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
