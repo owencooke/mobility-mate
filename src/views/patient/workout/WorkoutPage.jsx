@@ -2,6 +2,28 @@ import Navbar from "./Navbar";
 import { db } from "../../../../firebaseConfig";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import motivations from "./motivations.json";
+
+const pickPercentMessages = (messagesObject) => {
+  const randomMessages = {};
+  Object.keys(messagesObject).forEach((percentage) => {
+    const messagesArray = messagesObject[percentage];
+    randomMessages[percentage] =
+      messagesArray[Math.floor(Math.random() * messagesArray.length)];
+  });
+  return randomMessages;
+};
+
+const motivationalMessages = pickPercentMessages(motivations);
+
+const getMessageFromPercentage = (percentage) => {
+  const closestLowerBound = Math.max(
+    ...Object.keys(motivationalMessages).filter(
+      (key) => percentage >= parseInt(key, 10)
+    )
+  );
+  return motivationalMessages[closestLowerBound];
+};
 
 const WorkoutPage = () => {
   const { patientID, practitionerID } = useParams();
@@ -10,11 +32,15 @@ const WorkoutPage = () => {
   const [checkboxStates, setCheckboxStates] = useState([]);
 
   const exercise = exercises[currentIndex];
-  const percentComplete = Math.round(
-    (checkboxStates.flat().filter((b) => b).length /
-      exercises.reduce((total, exercise) => total + (exercise.sets || 0), 0)) *
-      100
-  );
+  const percentComplete =
+    Math.round(
+      (checkboxStates.flat().filter((b) => b).length /
+        exercises.reduce(
+          (total, exercise) => total + (exercise.sets || 0),
+          0
+        )) *
+        100
+    ) || 0;
 
   useEffect(() => {
     const fetchPatientDetails = async () => {
@@ -150,7 +176,7 @@ const WorkoutPage = () => {
           )}
         </div>
         <div className="w-1/2 text-center">
-          slow and steady wins the race 🐢
+          {getMessageFromPercentage(percentComplete)}
           <div className="flex items-center text-base gap-4">
             <progress className="progress" value={percentComplete} max="100" />
             <p className="mb-1 text-sm">{percentComplete}%</p>
