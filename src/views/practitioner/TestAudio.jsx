@@ -1,33 +1,15 @@
-import React from 'react';
+import AudioButton from './components/AudioButton';
 
 const TestAudio = () => {
-    const handleButtonClick = async () => {
-        try {
-            const response = await fetch('http://127.0.0.1:5000/text_to_speech', {
-                method: 'POST',
-                body: JSON.stringify({ content: 'This is a test. Hopefully the text to speach works correctly.' }),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                const audioBlob = await response.blob();
-                const audioUrl = URL.createObjectURL(audioBlob);
-                const audio = new Audio(audioUrl);
-                audio.play(); // Automatically play the audio stream
-                // setAudioStream(audio);
-            } else {
-                console.error('Failed to fetch audio stream');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    };
+    const text1 = "This is a test. Hopefully the text to speech works correctly.";
+    const text2 = "This is a second test. Hopefully the text to speech works correctly.";
 
     return (
         <div>
-            <button onClick={handleButtonClick}>Play Audio</button>
+            <p>{text1}</p>
+            <p>{text2}</p>
+            <AudioButton target_text={text1} />
+            <AudioButton target_text={text2} />
         </div>
     );
 };

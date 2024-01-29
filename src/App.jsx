@@ -6,25 +6,27 @@ import PractitionerDashboard from "./views/practitioner/PractitionerDashboard";
 import PractitionerSignUp from "./views/practitioner/PractitionerSignUp";
 import PractitionerLogin from "./views/practitioner/PractitionerLogin";
 import TestAudio from "./views/practitioner/TestAudio";
-
+import AudioProvider from "./views/practitioner/components/Audio";
 const App = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route
-          path="/:practitionerID/patient/:patientID"
-          element={<PatientHome />}
-        />
-        <Route
-          path="/practitioner/dashboard"
-          element={<PractitionerDashboard />}
-        />
-        <Route path="/practitioner/signUp" element={<PractitionerSignUp />} />
-        <Route path="/practitioner/TestAudio" element={<TestAudio />} />
-        <Route path="/practitioner/login" element={<PractitionerLogin />} />
-      </Routes>
-    </BrowserRouter>
+    <AudioProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route
+            path="/:practitionerID/patient/:patientID"
+            element={<PatientHome />}
+          />
+          <Route
+            path="/practitioner/dashboard"
+            element={<PractitionerDashboard />}
+          />
+          <Route path="/practitioner/signUp" element={<PractitionerSignUp />} />
+          <Route path="/practitioner/TestAudio" element={<TestAudio />} />
+          <Route path="/practitioner/login" element={<PractitionerLogin />} />
+        </Routes>
+      </BrowserRouter>
+    </AudioProvider>
   );
 };
 
