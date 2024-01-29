@@ -29,11 +29,11 @@ const AudioButton = ({ target_text }) => {
                     playAudio(audioUrl, target_text)
                 } else {
                     console.error('Failed to fetch audio stream');
-                    setAudioText('')
+                    setAudioText('');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                setAudioText('')
+                setAudioText('');
             }
         }
     };
