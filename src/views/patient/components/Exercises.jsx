@@ -30,6 +30,24 @@ const ExerciseComponent = ({ exercise }) => {
   );
 };
 
+const getStatusObject = (percentComplete) => {
+  if (percentComplete === 100) {
+    return {
+      title: "Workout Complete",
+      subtitle: "Fantastic job, you crushed it! 🏆",
+    };
+  } else if (percentComplete > 0) {
+    return {
+      title: "Resume Workout",
+      subtitle: "You're on the right track! 🏃‍♂️",
+    };
+  }
+  return {
+    title: "Start Workout",
+    subtitle: "slow and steady wins the race! 🐢",
+  };
+};
+
 export default function Exercises({ exercises, practitionerID, patientID }) {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -69,7 +87,7 @@ export default function Exercises({ exercises, practitionerID, patientID }) {
     navigate(`/${practitionerID}/patient/${patientID}/workout`);
   };
 
-  console.log(percentComplete);
+  const workoutStatus = getStatusObject(percentComplete);
 
   return (
     <div className="flex flex-col gap-2 h-full">
@@ -104,10 +122,8 @@ export default function Exercises({ exercises, practitionerID, patientID }) {
       <div className="shadow-[0_0_5px_0_rgba(0,0,0,0.2)] rounded-box p-4">
         <div className="flex justify-between">
           <div>
-            <h3 className="text-lg font-medium">{`${
-              percentComplete ? "Resume" : "Start"
-            } Workout`}</h3>
-            slow and steady wins the race 🐢
+            <h3 className="text-lg font-medium">{workoutStatus.title}</h3>
+            {workoutStatus.subtitle}
             <div className="flex items-center text-base gap-4">
               <progress
                 className="progress w-56"

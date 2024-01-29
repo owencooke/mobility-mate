@@ -60,6 +60,15 @@ const WorkoutPage = () => {
           .collection("patients")
           .doc(patientID);
 
+        const prevWorkout = await patientRef
+          .collection("workoutLog")
+          .doc(getDateString())
+          .get();
+
+        const completedSets = prevWorkout?.exists
+          ? prevWorkout.data().completedSets
+          : null;
+
         const unsubscribePatient = patientRef.onSnapshot(async (doc) => {
           if (doc.exists) {
             const patientData = doc.data();
@@ -94,7 +103,9 @@ const WorkoutPage = () => {
             setExercises(allExercises);
             setCheckboxStates(
               allExercises.map((exercise) =>
-                Array(exercise.sets || 0).fill(false)
+                Array(exercise.sets || 0)
+                  .fill(false)
+                  .map((_, idx) => idx < (completedSets?.[exercise.id] || 0))
               )
             );
           } else {
@@ -134,7 +145,22 @@ const WorkoutPage = () => {
       .doc(practitionerID)
       .collection("patients")
       .doc(patientID);
-    patientRef.collection("workoutLog").doc(date).set({ percentComplete });
+    patientRef
+      .collection("workoutLog")
+      .doc(date)
+      .set({
+        percentComplete,
+        completedSets: exercises.reduce(
+          (acc, exercise, idx) => (
+            (acc[exercise.id] = checkboxStates[idx].reduce(
+              (sum, value) => sum + value,
+              0
+            )),
+            acc
+          ),
+          {}
+        ),
+      });
     if (percentComplete === 100) {
       patientRef.update({ lastCompletedWorkout: date });
     }

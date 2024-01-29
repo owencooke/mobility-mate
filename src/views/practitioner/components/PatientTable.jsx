@@ -40,8 +40,6 @@ const PatientTable = ({ onPatientClick, refreshPatients }) => {
     onPatientClick(patientId);
   };
 
-  console.log(patients);
-
   return (
     <div className="w-full p-8">
       <div className="flex justify-between">
