@@ -128,13 +128,16 @@ const WorkoutPage = () => {
 
   const postWorkoutResults = () => {
     if (!percentComplete) return;
-    const workoutLogRef = db
+    const date = getDateString();
+    const patientRef = db
       .collection("practitioners")
       .doc(practitionerID)
       .collection("patients")
-      .doc(patientID)
-      .collection("workoutLog");
-    workoutLogRef.doc(getDateString()).set({ percentComplete });
+      .doc(patientID);
+    patientRef.collection("workoutLog").doc(date).set({ percentComplete });
+    if (percentComplete === 100) {
+      patientRef.update({ lastCompletedWorkout: date });
+    }
   };
 
   return (

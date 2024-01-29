@@ -40,13 +40,17 @@ const PatientTable = ({ onPatientClick, refreshPatients }) => {
     onPatientClick(patientId);
   };
 
+  console.log(patients);
+
   return (
     <div className="w-full p-8">
       <div className="flex justify-between">
         <h1 className="text-2xl font-semibold mb-4">Patients</h1>
         <button
           className="btn bg-dark-teal text-white hover:bg-gray-600"
-          onClick={() => document.getElementById("new_patient_modal").showModal()}
+          onClick={() =>
+            document.getElementById("new_patient_modal").showModal()
+          }
         >
           <Plus />
           New Patient
@@ -64,7 +68,7 @@ const PatientTable = ({ onPatientClick, refreshPatients }) => {
                 <th>Name</th>
                 <th>Age</th>
                 <th>Email</th>
-                <th>Last Login</th>
+                <th>Last Workout Completed</th>
               </tr>
             </thead>
             <tbody>
@@ -79,7 +83,7 @@ const PatientTable = ({ onPatientClick, refreshPatients }) => {
                   <th className="text-gray-700">{patient.name}</th>
                   <td>{patient.age}</td>
                   <td>{patient.email}</td>
-                  <td>{patient.lastLogin || "Never"}</td>
+                  <td>{patient.lastCompletedWorkout || "Never"}</td>
                 </tr>
               ))}
             </tbody>

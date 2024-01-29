@@ -123,7 +123,9 @@ const PatientDetails = ({ patientID }) => {
             <p>{patientID}</p>
             <p>{patient.age} years old</p>
             <p>{patient.email}</p>
-            <p>Last Login: {patient.lastLogin || "Never"}</p>
+            <p>
+              Last Workout Completed: {patient.lastCompletedWorkout || "Never"}
+            </p>
           </div>
           <div className="flex justify-between items-center w-full text-xl font-bold mt-10">
             <p>Exercise Routine</p>
