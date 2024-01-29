@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MoveLeft, MoveRight, Dot, PlayCircle } from "lucide-react";
+import { db, getDateString } from "../../../../firebaseConfig";
 
 const ExerciseComponent = ({ exercise }) => {
   return (
@@ -32,6 +33,23 @@ const ExerciseComponent = ({ exercise }) => {
 export default function Exercises({ exercises, practitionerID, patientID }) {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [percentComplete, setPercentComplete] = useState(0);
+
+  useEffect(() => {
+    const fetchWorkoutProgress = async () => {
+      const workoutLogRef = db
+        .collection("practitioners")
+        .doc(practitionerID)
+        .collection("patients")
+        .doc(patientID)
+        .collection("workoutLog")
+        .doc(getDateString());
+      const workoutLog = (await workoutLogRef.get()).data();
+      setPercentComplete(workoutLog.percentComplete);
+    };
+
+    fetchWorkoutProgress();
+  }, [patientID, practitionerID]);
 
   const prevSlide = () => {
     const isFirstSlide = currentIndex === 0;
@@ -50,6 +68,8 @@ export default function Exercises({ exercises, practitionerID, patientID }) {
   const handleStartWorkout = () => {
     navigate(`/${practitionerID}/patient/${patientID}/workout`);
   };
+
+  console.log(percentComplete);
 
   return (
     <div className="flex flex-col gap-2 h-full">
@@ -84,11 +104,17 @@ export default function Exercises({ exercises, practitionerID, patientID }) {
       <div className="shadow-[0_0_5px_0_rgba(0,0,0,0.2)] rounded-box p-4">
         <div className="flex justify-between">
           <div>
-            <h3 className="text-lg font-medium">Start Workout</h3>
+            <h3 className="text-lg font-medium">{`${
+              percentComplete ? "Resume" : "Start"
+            } Workout`}</h3>
             slow and steady wins the race 🐢
             <div className="flex items-center text-base gap-4">
-              <progress className="progress w-56" value={0} max="100" />
-              <p className="mb-1 text-sm">0%</p>
+              <progress
+                className="progress w-56"
+                value={percentComplete}
+                max="100"
+              />
+              <p className="mb-1 text-sm">{percentComplete}%</p>
             </div>
           </div>
           <button

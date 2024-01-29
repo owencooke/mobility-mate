@@ -34,3 +34,6 @@ export async function getCurrentUser() {
     }, reject);
   });
 }
+export function getDateString() {
+  return new Date().toISOString().split("T")[0];
+}

@@ -125,18 +125,18 @@ const PatientHome = () => {
 
   useEffect(() => {
     const startConversation = async () => {
-      // const queryParams = new URLSearchParams({
-      //   patient: patientID,
-      //   practitioner: practitionerID,
-      // });
-      // try {
-      //   const response = await axios.get(
-      //     `${apiUrl}/conversation/start?${queryParams.toString()}`
-      //   );
-      //   updateGptResponse(response.data.reply);
-      // } catch (error) {
-      //   console.error("Error fetching conversation start:", error);
-      // }
+      const queryParams = new URLSearchParams({
+        patient: patientID,
+        practitioner: practitionerID,
+      });
+      try {
+        const response = await axios.get(
+          `${apiUrl}/conversation/start?${queryParams.toString()}`
+        );
+        updateGptResponse(response.data.reply);
+      } catch (error) {
+        console.error("Error fetching conversation start:", error);
+      }
     };
     startConversation();
   }, [patientID, practitionerID, updateGptResponse]);

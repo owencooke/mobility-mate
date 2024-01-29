@@ -1,5 +1,5 @@
 import Navbar from "./Navbar";
-import { db } from "../../../../firebaseConfig";
+import { db, getDateString } from "../../../../firebaseConfig";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import motivations from "./motivations.json";
@@ -126,9 +126,24 @@ const WorkoutPage = () => {
     });
   };
 
+  const postWorkoutResults = () => {
+    if (!percentComplete) return;
+    const workoutLogRef = db
+      .collection("practitioners")
+      .doc(practitionerID)
+      .collection("patients")
+      .doc(patientID)
+      .collection("workoutLog");
+    workoutLogRef.doc(getDateString()).set({ percentComplete });
+  };
+
   return (
     <div className="h-screen w-full flex flex-col">
-      <Navbar patientID={patientID} practitionerID={practitionerID} />
+      <Navbar
+        patientID={patientID}
+        practitionerID={practitionerID}
+        postWorkoutResults={postWorkoutResults}
+      />
       {/* Main Exercise Section */}
       {exercises.length === 0 ? (
         <div className="flex flex-col items-center gap-1 font-medium text-2xl justify-center flex-grow">
