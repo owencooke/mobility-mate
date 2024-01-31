@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { AudioContext } from './Audio';
-
+import apiUrl from '../config';
 
 const AudioButton = ({ target_text }) => {
     const { playAudio, audioText, isAudioActuallyPlaying, isAudioTryingToPlay, stopAudio, setAudioText } = useContext(AudioContext);
@@ -15,7 +15,7 @@ const AudioButton = ({ target_text }) => {
         if (text != target_text) {
             try {
                 setAudioText(target_text)
-                const response = await fetch('http://127.0.0.1:5000/text_to_speech', {
+                const response = await fetch(`${apiUrl}/text_to_speech`, {
                     method: 'POST',
                     body: JSON.stringify({ content: target_text }),
                     headers: {
@@ -39,7 +39,7 @@ const AudioButton = ({ target_text }) => {
     };
     return (
         <div>
-            <button onClick={() => handleButtonClick()}>
+            <button onClick={() => handleButtonClick()} disabled={isAudioTryingToPlay() && !isAudioActuallyPlaying()}>
                 {isAudioActuallyPlaying() && target_text === audioText ? 'Stop Audio' : (target_text === audioText && isAudioTryingToPlay() ? 'Loading' : 'Play Audio')}
             </button>
         </div>

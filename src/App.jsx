@@ -5,8 +5,8 @@ import PatientHome from "./views/patient/PatientHome";
 import PractitionerDashboard from "./views/practitioner/PractitionerDashboard";
 import PractitionerSignUp from "./views/practitioner/PractitionerSignUp";
 import PractitionerLogin from "./views/practitioner/PractitionerLogin";
-import TestAudio from "./views/practitioner/TestAudio";
-import AudioProvider from "./views/practitioner/components/Audio";
+import TestAudio from "./audio/TestAudio";
+import AudioProvider from "./audio/Audio";
 const App = () => {
   return (
     <AudioProvider>
@@ -22,7 +22,7 @@ const App = () => {
             element={<PractitionerDashboard />}
           />
           <Route path="/practitioner/signUp" element={<PractitionerSignUp />} />
-          <Route path="/practitioner/TestAudio" element={<TestAudio />} />
+          <Route path="/TestAudio" element={<TestAudio />} />
           <Route path="/practitioner/login" element={<PractitionerLogin />} />
         </Routes>
       </BrowserRouter>

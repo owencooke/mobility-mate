@@ -1,4 +1,4 @@
-import AudioButton from './components/AudioButton';
+import AudioButton from './AudioButton';
 
 const TestAudio = () => {
     const text1 = "This is a test. Hopefully the text to speech works correctly.";
@@ -7,8 +7,8 @@ const TestAudio = () => {
     return (
         <div>
             <p>{text1}</p>
-            <p>{text2}</p>
             <AudioButton target_text={text1} />
+            <p>{text2}</p>
             <AudioButton target_text={text2} />
         </div>
     );
