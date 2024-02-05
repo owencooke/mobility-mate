@@ -2,11 +2,12 @@ import { useState } from "react";
 import { getCurrentUser, db, storage } from "../../../../firebaseConfig";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { v4 as uuidv4 } from "uuid";
+import { Trash2 } from "lucide-react";
 
 const emptyForm = {
   title: "",
   description: "",
-  steps: "",
+  steps: [""],
 };
 
 const ExerciseModal = () => {
@@ -14,9 +15,24 @@ const ExerciseModal = () => {
   const [image, setImage] = useState(null);
   const [imageString, setImageString] = useState("");
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  const handleChange = (e, index) => {
+    if (index !== undefined) {
+      const newSteps = [...formData.steps];
+      newSteps[index] = e.target.value;
+      setFormData({ ...formData, steps: newSteps });
+    } else {
+      const { name, value } = e.target;
+      setFormData((prevData) => ({ ...prevData, [name]: value }));
+    }
+  };
+
+  const handleAddStep = () => {
+    setFormData({ ...formData, steps: [...formData.steps, ""] });
+  };
+
+  const handleRemoveStep = (index) => {
+    const newSteps = formData.steps.filter((_, i) => i !== index);
+    setFormData({ ...formData, steps: newSteps });
   };
 
   const handleImageChange = (e) => {
@@ -75,6 +91,8 @@ const ExerciseModal = () => {
 
   const handleClose = () => {
     setFormData(emptyForm);
+    setImage(null);
+    setImageString("");
     document.getElementById("new_exercise_modal").close();
   };
 
@@ -83,7 +101,7 @@ const ExerciseModal = () => {
       id="new_exercise_modal"
       className="modal modal-bottom sm:modal-middle"
     >
-      <div className="modal-box">
+      <div className="modal-box sm:max-w-2xl">
         <h3 className="font-bold text-lg">Create a New Exercise</h3>
         <div className="modal-action w-full">
           <form className="w-full" onSubmit={handleSubmit}>
@@ -119,16 +137,35 @@ const ExerciseModal = () => {
               <label htmlFor="steps" className="text-gray-800">
                 Steps
               </label>
-              <textarea
-                id="steps"
-                name="steps"
-                value={formData.steps}
-                placeholder="Step 1: Turn a chair away from a table, with room to stand in front of it.
-Step 2. Sit down in the chair.
-                "
-                className="block p-4 w-full text-black bg-[#f1f1f1] rounded-lg border sm:text-md focus:outline-none focus:border-gray-500 max-h-64 min-h-16"
-                onChange={handleChange}
-              />
+              {formData.steps.map((step, index) => (
+                <div key={index} className="mb-4 flex items-center gap-1">
+                  <div className="absolute ml-4">{index + 1}.</div>
+                  <input
+                    type="text"
+                    value={step}
+                    className="flex-1 py-2 pr-4 pl-8 text-black bg-[#f1f1f1] rounded-lg border sm:text-md focus:outline-none focus:border-gray-500"
+                    onChange={(e) => handleChange(e, index)}
+                  />
+                  {index > 0 && (
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm px-1"
+                      onClick={() => handleRemoveStep(index)}
+                    >
+                      <Trash2 />
+                    </button>
+                  )}
+                </div>
+              ))}
+              {formData.steps.length < 8 && (
+                <button
+                  type="button"
+                  className="btn btn-sm bg-light-teal text-white"
+                  onClick={handleAddStep}
+                >
+                  Add Step
+                </button>
+              )}
             </div>
             <div className="mb-6">
               <label htmlFor="image" className="text-gray-800">
