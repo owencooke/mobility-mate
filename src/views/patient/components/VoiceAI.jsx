@@ -1,13 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
-import apiUrl from '../../../config';
-import gsap from 'gsap';
-import { Mic } from 'lucide-react';
-import Spline from '@splinetool/react-spline';
+import { useState, useEffect, useRef } from "react";
+import axios from "axios";
+import apiUrl from "../../../config";
+import gsap from "gsap";
+import { Mic } from "lucide-react";
+import Spline from "@splinetool/react-spline";
 
 const VoiceAI = ({
-  patientID,
-  practitionerID,
+  getConvoQueryString,
   updateUserMessage,
   updateGptResponse,
   isRecording,
@@ -27,28 +26,23 @@ const VoiceAI = ({
       recognition.continuous = true;
       recognition.interimResults = true;
 
-      let accumulatedTranscript = '';
+      let accumulatedTranscript = "";
 
       recognition.onresult = (event) => {
-        accumulatedTranscript = '';
+        accumulatedTranscript = "";
         for (let i = 0; i < event.results.length; i++) {
-          accumulatedTranscript += event.results[i][0].transcript.trim() + ' ';
+          accumulatedTranscript += event.results[i][0].transcript.trim() + " ";
         }
         updateUserMessage(accumulatedTranscript);
       };
 
       setSpeechRecognition(recognition);
     } else {
-      console.warn('Speech recognition not supported in this browser.');
+      console.warn("Speech recognition not supported in this browser.");
     }
   }, [updateUserMessage]);
 
   const startRecording = async () => {
-    const queryParams = new URLSearchParams({
-      patient: patientID,
-      practitioner: practitionerID,
-    });
-
     // Start recording audio
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     const recorder = new MediaRecorder(stream);
@@ -63,12 +57,12 @@ const VoiceAI = ({
     recorder.onstop = async () => {
       updateGptResponse(null);
       // Process and send the audio data to the server for transcription
-      const audioBlob = new Blob(chunks, { type: 'audio/wav' });
+      const audioBlob = new Blob(chunks, { type: "audio/wav" });
       const formData = new FormData();
-      formData.append('audioFile', audioBlob, 'recorded_audio.wav');
+      formData.append("audioFile", audioBlob, "recorded_audio.wav");
 
       const response = await axios.post(
-        `${apiUrl}/conversation/send_message?${queryParams.toString()}`,
+        `${apiUrl}/conversation/send_message?${await getConvoQueryString()}`,
         formData
       );
       updateGptResponse(response.data.reply);
@@ -91,7 +85,7 @@ const VoiceAI = ({
   };
 
   function onLoad(spline) {
-    const obj = spline.findObjectById('03141e7a-30b4-4f13-ba4b-2db4af29b67f');
+    const obj = spline.findObjectById("03141e7a-30b4-4f13-ba4b-2db4af29b67f");
     sphere.current = obj;
     if (sphere.current) {
       setIsModelLoaded(true);
@@ -105,7 +99,7 @@ const VoiceAI = ({
       x: 1.3,
       y: 1.3,
       z: 1.3,
-      ease: 'power3.out',
+      ease: "power3.out",
     });
   };
 
@@ -116,7 +110,7 @@ const VoiceAI = ({
       x: 1,
       y: 1,
       z: 1,
-      ease: 'power3.out',
+      ease: "power3.out",
     });
   };
 
@@ -125,7 +119,7 @@ const VoiceAI = ({
       {!isModelLoaded && <div className="skeleton h-[500px] w-[500px]"></div>}
       <div
         className={`${
-          isModelLoaded ? 'visible' : 'hidden'
+          isModelLoaded ? "visible" : "hidden"
         } bg-transparent h-[500px] w-[500px]`}
       >
         <Spline
@@ -146,7 +140,8 @@ const VoiceAI = ({
         )}
         {isRecording && (
           <>
-            <span className="loading loading-ring loading-sm"></span>Listening...
+            <span className="loading loading-ring loading-sm"></span>
+            Listening...
           </>
         )}
       </button>

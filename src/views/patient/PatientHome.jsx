@@ -1,6 +1,7 @@
 import Navbar from "./components/Navbar";
 import Exercises from "./components/Exercises";
 import { useState, useEffect, useCallback } from "react";
+import { useBlocker, useBeforeUnload } from "react-router-dom";
 import VoiceAI from "./components/VoiceAI";
 import { db } from "../../../firebaseConfig";
 import axios from "axios";
@@ -8,10 +9,14 @@ import apiUrl from "../../config";
 import { useParams } from "react-router-dom";
 import Conversation from "./components/Conversation";
 
+const defaultMessage =
+  "Hey there, good to see you! If you need any assistance, please don't hesitate to ask me!";
+
 const PatientHome = () => {
   const { patientID, practitionerID } = useParams();
   const [patient, setPatient] = useState(null);
-  const [convo, setConvo] = useState([]);
+  const [conversationID, setConversationID] = useState(null);
+  const [convo, setConvo] = useState([{ type: "gpt", text: defaultMessage }]);
   const [userInput, setUserInput] = useState("");
   const [exercises, setExercises] = useState([]);
   const [isRecording, setIsRecording] = useState(false);
@@ -74,22 +79,40 @@ const PatientHome = () => {
     setUserInput(e.target.value);
   };
 
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    updateUserMessage(userInput);
+  const getConvoQueryString = useCallback(async () => {
     const queryParams = new URLSearchParams({
       patient: patientID,
       practitioner: practitionerID,
     });
+
+    if (!conversationID) {
+      try {
+        const response = await axios.get(
+          `${apiUrl}/conversation/start?${queryParams.toString()}`
+        );
+        queryParams.append("id", response.data.conversationID);
+        setConversationID(response.data.conversationID);
+      } catch (error) {
+        console.error("Error fetching conversation start:", error);
+      }
+    } else {
+      queryParams.append("id", conversationID);
+    }
+    return queryParams;
+  }, [patientID, practitionerID, conversationID]);
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    updateUserMessage(userInput);
     try {
       const response = await axios.post(
-        `${apiUrl}/conversation/send_text_message?${queryParams.toString()}`,
+        `${apiUrl}/conversation/send_message?${await getConvoQueryString()}`,
         { message: userInput }
       );
       updateGptResponse(response.data.reply);
       setUserInput("");
     } catch (error) {
-      console.error("Error fetching conversation start:", error);
+      console.error("Error sending text message:", error);
     }
   };
 
@@ -123,44 +146,23 @@ const PatientHome = () => {
     });
   }, []);
 
-  useEffect(() => {
-    const startConversation = async () => {
-      const queryParams = new URLSearchParams({
-        patient: patientID,
-        practitioner: practitionerID,
-      });
+  // End existing conversation if user:
+  useBeforeUnload(async () => await handleEndSession()); // A) refreshes/closes page
+  useBlocker(() => {
+    handleEndSession();
+    return false;
+  }); // B) goes to a different route in-app
+  const handleEndSession = async () => {
+    if (conversationID) {
       try {
-        const response = await axios.get(
-          `${apiUrl}/conversation/start?${queryParams.toString()}`
-        );
-        updateGptResponse(response.data.reply);
-      } catch (error) {
-        console.error("Error fetching conversation start:", error);
-      }
-    };
-    startConversation();
-  }, [patientID, practitionerID, updateGptResponse]);
-
-  useEffect(() => {
-    const handleEndSession = async () => {
-      try {
-        await axios.post(
-          `${apiUrl}/conversation/end`,
-          {},
-          {
-            params: new URLSearchParams({
-              patient: patientID,
-              practitioner: practitionerID,
-            }),
-          }
+        await axios.get(
+          `${apiUrl}/conversation/end?${await getConvoQueryString()}`
         );
       } catch (error) {
         console.error("Error ending conversation:", error);
       }
-    };
-    window.addEventListener("beforeunload", handleEndSession);
-    return () => window.removeEventListener("beforeunload", handleEndSession);
-  }, [patientID, practitionerID]);
+    }
+  };
 
   return (
     <div className="flex flex-col border-2 bg-base-100 rounded-xl h-[calc(100vh-32px)] overflow-hidden box-border m-[16px] text-dark-teal ">
@@ -191,6 +193,7 @@ const PatientHome = () => {
             updateGptResponse={updateGptResponse}
             isRecording={isRecording}
             setIsRecording={setIsRecording}
+            getConvoQueryString={getConvoQueryString}
           />
         </div>
         <div className="w-1/3">
