@@ -1,12 +1,14 @@
-# This is the frontend for MobilityMate
+# MobilityMate (Frontend)
 
-A platform for saving time for physiotherapists at the office and helping senior patients track their exercise routine progress.
+Supporting senior patients through their exercise programs via an accessible AI voice assistant and summarizing key difficulties for their medical practitioner to help with.
+
+![Screenshot (669) 1](https://github.com/mfdavies/mobility-mate-frontend/assets/90405643/f362e83f-d52f-427c-baca-9aa973228c8a)
 
 ### Winner of the Diversity in Engineering Prize at HackED 2024 🎉
 
 For building a project that contributes to EDI (equity, diversity, and inclusion) and accessibility. See our [Devpost](https://devpost.com/software/mobility-mate-9fyp8v) here.
 
-## Demo Video
+![Screenshot (690)](https://github.com/mfdavies/mobility-mate-frontend/assets/90405643/7fa21a2e-5994-4426-9c0e-5e4dc0984521)
 
 ## Key Features
 
