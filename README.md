@@ -1,4 +1,4 @@
-# MobilityMate (Frontend)
+# MobilityMate
 
 Supporting senior patients through their exercise programs via an accessible AI voice assistant and summarizing key difficulties for their medical practitioner to help with.
 
@@ -12,9 +12,10 @@ For building a project that contributes to EDI (equity, diversity, and inclusion
 
 ## Key Features
 
-- Senior patients are able to easily see their assigned exercises and speak to an AI assistant to report on their progress and discuss any concerns.
-- Therapists have access to a dashboard of patients and can assign them exercise routines.
-- Therapists can view summaries of patient's conversations with the MobilityMate AI to quickly appraise themselves of the patients condition before their next appointment.
+- 🏋️‍♀️ Easy Exercise Tracking – Senior patients can quickly see their assigned exercises and chat with an AI assistant to report progress or discuss concerns.
+- 👩‍⚕️ Therapist Dashboard – Therapists have a comprehensive dashboard where they can assign personalized exercise routines to each patient.
+- 📊 Quick Patient Summaries – Therapists can view summaries of patients' conversations with the MobilityMate AI to stay up-to-date on their condition before appointments.
+- 🔗 Hassle-Free Login – Senior-friendly login with a simple email link—no passwords needed!
 
 ## Installation
 
